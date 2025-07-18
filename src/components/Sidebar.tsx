@@ -1,0 +1,271 @@
+import { useState, useEffect } from 'react';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Doughnut } from 'react-chartjs-2';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import DailyObservations from './DailyObservations';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+interface SidebarProps {
+  selectedDate: string;
+}
+
+interface FleetStats {
+  funcionando: number;
+  quebrado: number;
+  emprestado: number;
+}
+
+interface DailyInfo {
+  extravasamento: number;
+  servico_turma_02: number;
+  servico_turma_05: number;
+  oge: number;
+}
+
+export default function Sidebar({ selectedDate }: SidebarProps) {
+  const [fleetStats, setFleetStats] = useState<FleetStats>({
+    funcionando: 0,
+    quebrado: 0,
+    emprestado: 0
+  });
+
+  const [dailyInfo, setDailyInfo] = useState<DailyInfo>({
+    extravasamento: 0,
+    servico_turma_02: 0,
+    servico_turma_05: 0,
+    oge: 0
+  });
+
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadFleetStats();
+    loadDailyInfo();
+  }, [selectedDate]);
+
+  const loadFleetStats = async () => {
+    try {
+      const { data: statusData, error } = await supabase
+        .from('vehicle_status')
+        .select('status')
+        .eq('date', selectedDate);
+
+      if (error) throw error;
+
+      const stats = {
+        funcionando: 0,
+        quebrado: 0,
+        emprestado: 0
+      };
+
+      statusData?.forEach(item => {
+        if (item.status === 'Funcionando') stats.funcionando++;
+        else if (item.status === 'Quebrado') stats.quebrado++;
+        else if (item.status === 'Emprestado') stats.emprestado++;
+      });
+
+      setFleetStats(stats);
+    } catch (error) {
+      console.error('Error loading fleet stats:', error);
+    }
+  };
+
+  const loadDailyInfo = async () => {
+    try {
+      const { data: dailyInfoData, error } = await supabase
+        .from('daily_info')
+        .select('*')
+        .eq('date', selectedDate)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (dailyInfoData) {
+        setDailyInfo({
+          extravasamento: dailyInfoData.extravasamento || 0,
+          servico_turma_02: dailyInfoData.servico_turma_02 || 0,
+          servico_turma_05: dailyInfoData.servico_turma_05 || 0,
+          oge: dailyInfoData.oge || 0
+        });
+      }
+    } catch (error) {
+      console.error('Error loading daily info:', error);
+    }
+  };
+
+  const saveDailyInfo = async () => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('daily_info')
+        .upsert({
+          date: selectedDate,
+          ...dailyInfo
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Dados salvos",
+        description: "Informativo geral salvo com sucesso!",
+      });
+    } catch (error: any) {
+      console.error('Error saving daily info:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const resetDailyInfo = () => {
+    setDailyInfo({
+      extravasamento: 0,
+      servico_turma_02: 0,
+      servico_turma_05: 0,
+      oge: 0
+    });
+  };
+
+  const chartData = {
+    labels: ['Funcionando', 'Quebrados', 'Emprestados'],
+    datasets: [
+      {
+        data: [fleetStats.funcionando, fleetStats.quebrado, fleetStats.emprestado],
+        backgroundColor: [
+          'hsl(160, 84%, 39%)', // Green - #059669
+          'hsl(0, 84%, 60%)',   // Red - #dc2626
+          'hsl(32, 95%, 44%)'   // Orange - #d97706
+        ],
+        borderColor: [
+          'hsl(160, 84%, 29%)',
+          'hsl(0, 84%, 50%)',
+          'hsl(32, 95%, 34%)'
+        ],
+        borderWidth: 2
+      }
+    ]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          padding: 15,
+          usePointStyle: true
+        }
+      }
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Fleet Status Chart */}
+      <div className="bg-card rounded-lg p-6 border border-border">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Status da Frota</h3>
+        <div style={{ height: '200px' }}>
+          <Doughnut data={chartData} options={chartOptions} />
+        </div>
+      </div>
+
+      {/* General Information */}
+      <div className="bg-card rounded-lg p-6 border border-border">
+        <h3 className="text-lg font-semibold text-foreground mb-4">
+          Informativo Geral
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Situação de demandas e serviços
+        </p>
+
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Extravasamento
+            </label>
+            <input
+              type="number"
+              value={dailyInfo.extravasamento}
+              onChange={(e) => setDailyInfo(prev => ({ ...prev, extravasamento: parseInt(e.target.value) || 0 }))}
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
+              min="0"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Serviço Turma 02
+            </label>
+            <input
+              type="number"
+              value={dailyInfo.servico_turma_02}
+              onChange={(e) => setDailyInfo(prev => ({ ...prev, servico_turma_02: parseInt(e.target.value) || 0 }))}
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
+              min="0"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              Serviço Turma 05
+            </label>
+            <input
+              type="number"
+              value={dailyInfo.servico_turma_05}
+              onChange={(e) => setDailyInfo(prev => ({ ...prev, servico_turma_05: parseInt(e.target.value) || 0 }))}
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
+              min="0"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">
+              OGE
+            </label>
+            <input
+              type="number"
+              value={dailyInfo.oge}
+              onChange={(e) => setDailyInfo(prev => ({ ...prev, oge: parseInt(e.target.value) || 0 }))}
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
+              min="0"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={saveDailyInfo}
+            disabled={saving}
+            className="btn-success flex-1"
+          >
+            {saving ? (
+              <i className="fas fa-spinner fa-spin"></i>
+            ) : (
+              <i className="fas fa-save"></i>
+            )}
+            Salvar
+          </button>
+          <button
+            onClick={resetDailyInfo}
+            className="btn-secondary flex-1"
+          >
+            <i className="fas fa-undo"></i>
+            Resetar
+          </button>
+        </div>
+      </div>
+
+      {/* Daily Observations */}
+      <DailyObservations selectedDate={selectedDate} />
+    </div>
+  );
+}

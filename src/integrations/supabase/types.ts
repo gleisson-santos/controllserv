@@ -14,7 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_info: {
+        Row: {
+          created_at: string
+          date: string
+          extravasamento: number | null
+          id: string
+          oge: number | null
+          servico_turma_02: number | null
+          servico_turma_05: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          extravasamento?: number | null
+          id?: string
+          oge?: number | null
+          servico_turma_02?: number | null
+          servico_turma_05?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          extravasamento?: number | null
+          id?: string
+          oge?: number | null
+          servico_turma_02?: number | null
+          servico_turma_05?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      daily_observations: {
+        Row: {
+          content: string | null
+          created_at: string
+          date: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          date: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      vehicle_status: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          observations: string | null
+          status: Database["public"]["Enums"]["vehicle_status_enum"]
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          observations?: string | null
+          status?: Database["public"]["Enums"]["vehicle_status_enum"]
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          observations?: string | null
+          status?: Database["public"]["Enums"]["vehicle_status_enum"]
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_status_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          type: Database["public"]["Enums"]["vehicle_type"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          type?: Database["public"]["Enums"]["vehicle_type"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          type?: Database["public"]["Enums"]["vehicle_type"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +141,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      vehicle_status_enum:
+        | "Funcionando"
+        | "Quebrado"
+        | "Emprestado"
+        | "Manutenção"
+        | "Indisponível"
+      vehicle_type: "DESTACK" | "EMBASA" | "OUTROS"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +274,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      vehicle_status_enum: [
+        "Funcionando",
+        "Quebrado",
+        "Emprestado",
+        "Manutenção",
+        "Indisponível",
+      ],
+      vehicle_type: ["DESTACK", "EMBASA", "OUTROS"],
+    },
   },
 } as const

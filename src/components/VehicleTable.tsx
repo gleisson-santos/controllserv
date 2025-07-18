@@ -1,0 +1,207 @@
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import { Vehicle, VehicleStatus } from './VehicleManagement';
+
+interface VehicleTableProps {
+  vehicles: VehicleStatus[];
+  loading: boolean;
+  selectedDate: string;
+  onEdit: (vehicle: Vehicle) => void;
+  onRefresh: () => void;
+}
+
+export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, onRefresh }: VehicleTableProps) {
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+
+  const updateVehicleStatus = async (vehicleId: string, status: string, observations?: string) => {
+    setUpdatingStatus(vehicleId);
+    try {
+      const { error } = await supabase
+        .from('vehicle_status')
+        .upsert({
+          vehicle_id: vehicleId,
+          date: selectedDate,
+          status: status as any,
+          observations: observations || null
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Status atualizado",
+        description: "Status do veículo atualizado com sucesso!",
+      });
+
+      onRefresh();
+    } catch (error: any) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Erro ao atualizar status",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setUpdatingStatus(null);
+    }
+  };
+
+  const deleteVehicle = async (vehicleId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este veículo?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('vehicles')
+        .delete()
+        .eq('id', vehicleId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Veículo excluído",
+        description: "Veículo removido com sucesso!",
+      });
+
+      onRefresh();
+    } catch (error: any) {
+      console.error('Error deleting vehicle:', error);
+      toast({
+        title: "Erro ao excluir veículo",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'Funcionando':
+        return 'status-funcionando';
+      case 'Quebrado':
+        return 'status-quebrado';
+      case 'Emprestado':
+        return 'status-emprestado';
+      case 'Manutenção':
+        return 'status-manutencao';
+      case 'Indisponível':
+        return 'status-indisponivel';
+      default:
+        return 'status-funcionando';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-8 text-center">
+        <i className="fas fa-spinner fa-spin text-2xl text-primary"></i>
+        <p className="mt-2 text-muted-foreground">Carregando veículos...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-muted/50 sticky top-0">
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Veículo
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Tipo
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Status
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Observações
+            </th>
+            <th className="px-6 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Ações
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-card divide-y divide-border">
+          {vehicles.map((vehicleStatus) => (
+            <tr key={vehicleStatus.vehicle_id} className="hover:bg-muted/25">
+              <td className="px-6 py-4 text-sm font-medium text-foreground">
+                {vehicleStatus.vehicle?.name}
+              </td>
+              <td className="px-6 py-4 text-sm text-muted-foreground">
+                {vehicleStatus.vehicle?.type}
+              </td>
+              <td className="px-6 py-4">
+                <select
+                  value={vehicleStatus.status}
+                  onChange={(e) => updateVehicleStatus(vehicleStatus.vehicle_id, e.target.value, vehicleStatus.observations || '')}
+                  disabled={updatingStatus === vehicleStatus.vehicle_id}
+                  className="text-sm border border-input rounded px-2 py-1 focus:ring-1 focus:ring-ring"
+                >
+                  <option value="Funcionando">Funcionando</option>
+                  <option value="Quebrado">Quebrado</option>
+                  <option value="Emprestado">Emprestado</option>
+                  <option value="Manutenção">Manutenção</option>
+                  <option value="Indisponível">Indisponível</option>
+                </select>
+                <span className={`status-badge ml-2 ${getStatusBadgeClass(vehicleStatus.status)}`}>
+                  {vehicleStatus.status}
+                </span>
+              </td>
+              <td className="px-6 py-4 max-w-xs">
+                <input
+                  type="text"
+                  value={vehicleStatus.observations || ''}
+                  onChange={(e) => {
+                    const newObservations = e.target.value;
+                    // Update locally first for better UX
+                    const updatedVehicles = vehicles.map(v => 
+                      v.vehicle_id === vehicleStatus.vehicle_id 
+                        ? { ...v, observations: newObservations }
+                        : v
+                    );
+                    // Debounce the actual update
+                    setTimeout(() => {
+                      updateVehicleStatus(vehicleStatus.vehicle_id, vehicleStatus.status, newObservations);
+                    }, 1000);
+                  }}
+                  placeholder="Adicionar observações..."
+                  className="text-sm w-full border border-input rounded px-2 py-1 focus:ring-1 focus:ring-ring"
+                  style={{ fontSize: '13px' }}
+                  title={vehicleStatus.observations || ''}
+                />
+              </td>
+              <td className="px-6 py-4 text-center">
+                <div className="flex justify-center gap-2">
+                  <button
+                    onClick={() => vehicleStatus.vehicle && onEdit(vehicleStatus.vehicle)}
+                    className="text-primary hover:text-primary/80 p-1"
+                    title="Editar veículo"
+                  >
+                    <i className="fas fa-edit"></i>
+                  </button>
+                  <button
+                    onClick={() => deleteVehicle(vehicleStatus.vehicle_id)}
+                    className="text-destructive hover:text-destructive/80 p-1"
+                    title="Excluir veículo"
+                  >
+                    <i className="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {vehicles.length === 0 && (
+        <div className="p-8 text-center">
+          <i className="fas fa-car text-4xl text-muted-foreground mb-4"></i>
+          <p className="text-muted-foreground">Nenhum veículo cadastrado</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Clique em "Adicionar Veículo" para começar
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
