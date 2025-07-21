@@ -131,19 +131,7 @@ export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, 
                 {vehicleStatus.vehicle?.type}
               </td>
               <td className="px-6 py-4">
-                <select
-                  value={vehicleStatus.status}
-                  onChange={(e) => updateVehicleStatus(vehicleStatus.vehicle_id, e.target.value, vehicleStatus.observations || '')}
-                  disabled={updatingStatus === vehicleStatus.vehicle_id}
-                  className="text-sm border border-input rounded px-2 py-1 focus:ring-1 focus:ring-ring"
-                >
-                  <option value="Funcionando">Funcionando</option>
-                  <option value="Quebrado">Quebrado</option>
-                  <option value="Emprestado">Emprestado</option>
-                  <option value="Manutenção">Manutenção</option>
-                  <option value="Indisponível">Indisponível</option>
-                </select>
-                <span className={`status-badge ml-2 ${getStatusBadgeClass(vehicleStatus.status)}`}>
+                <span className={`status-badge ${getStatusBadgeClass(vehicleStatus.status)}`}>
                   {vehicleStatus.status}
                 </span>
               </td>

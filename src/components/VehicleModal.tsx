@@ -7,22 +7,50 @@ interface VehicleModalProps {
   vehicle: Vehicle | null;
   onClose: () => void;
   onSave: () => void;
+  selectedDate: string;
 }
 
-export default function VehicleModal({ vehicle, onClose, onSave }: VehicleModalProps) {
+export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }: VehicleModalProps) {
   const [name, setName] = useState('');
   const [type, setType] = useState<'DESTACK' | 'EMBASA' | 'OUTROS'>('OUTROS');
+  const [status, setStatus] = useState<'Funcionando' | 'Quebrado' | 'Emprestado' | 'Manutenção' | 'Indisponível'>('Funcionando');
+  const [observations, setObservations] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (vehicle) {
       setName(vehicle.name);
       setType(vehicle.type);
+      loadVehicleStatus();
     } else {
       setName('');
       setType('OUTROS');
+      setStatus('Funcionando');
+      setObservations('');
     }
-  }, [vehicle]);
+  }, [vehicle, selectedDate]);
+
+  const loadVehicleStatus = async () => {
+    if (!vehicle) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('vehicle_status')
+        .select('status, observations')
+        .eq('vehicle_id', vehicle.id)
+        .eq('date', selectedDate)
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      if (data) {
+        setStatus(data.status);
+        setObservations(data.observations || '');
+      }
+    } catch (error) {
+      console.error('Error loading vehicle status:', error);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,17 +66,43 @@ export default function VehicleModal({ vehicle, onClose, onSave }: VehicleModalP
 
         if (error) throw error;
 
+        // Update vehicle status
+        const { error: statusError } = await supabase
+          .from('vehicle_status')
+          .upsert({
+            vehicle_id: vehicle.id,
+            date: selectedDate,
+            status,
+            observations
+          });
+
+        if (statusError) throw statusError;
+
         toast({
           title: "Veículo atualizado",
           description: "Veículo atualizado com sucesso!",
         });
       } else {
         // Create new vehicle
-        const { error } = await supabase
+        const { data: newVehicle, error } = await supabase
           .from('vehicles')
-          .insert({ name, type });
+          .insert({ name, type })
+          .select()
+          .single();
 
         if (error) throw error;
+
+        // Create initial vehicle status
+        const { error: statusError } = await supabase
+          .from('vehicle_status')
+          .insert({
+            vehicle_id: newVehicle.id,
+            date: selectedDate,
+            status,
+            observations
+          });
+
+        if (statusError) throw statusError;
 
         toast({
           title: "Veículo criado",
@@ -112,6 +166,36 @@ export default function VehicleModal({ vehicle, onClose, onSave }: VehicleModalP
               <option value="EMBASA">EMBASA</option>
               <option value="OUTROS">OUTROS</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Status
+            </label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value as 'Funcionando' | 'Quebrado' | 'Emprestado' | 'Manutenção' | 'Indisponível')}
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
+            >
+              <option value="Funcionando">Funcionando</option>
+              <option value="Quebrado">Quebrado</option>
+              <option value="Emprestado">Emprestado</option>
+              <option value="Manutenção">Manutenção</option>
+              <option value="Indisponível">Indisponível</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Observações
+            </label>
+            <textarea
+              value={observations}
+              onChange={(e) => setObservations(e.target.value)}
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
+              placeholder="Observações sobre o veículo..."
+              rows={3}
+            />
           </div>
 
           <div className="flex gap-3 pt-4">

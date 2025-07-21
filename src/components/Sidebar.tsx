@@ -74,8 +74,8 @@ export default function Sidebar({ selectedDate }: SidebarProps) {
 
   const loadDailyInfo = async () => {
     try {
-      const { data, error } = await supabase
-        .from('daily_info')
+      const { data, error } = await (supabase as any)
+        .from('general_info')
         .select('*')
         .eq('date', selectedDate)
         .maybeSingle();
@@ -108,8 +108,8 @@ export default function Sidebar({ selectedDate }: SidebarProps) {
     
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('daily_info')
+      const { error } = await (supabase as any)
+        .from('general_info')
         .upsert({
           date: selectedDate,
           extravasamento: dailyInfo.extravasamento,

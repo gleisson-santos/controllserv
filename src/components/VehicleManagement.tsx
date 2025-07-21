@@ -244,6 +244,7 @@ export default function VehicleManagement({ selectedDate, onDateChange }: Vehicl
             setEditingVehicle(null);
             loadVehicles();
           }}
+          selectedDate={selectedDate}
         />
       )}
     </div>
