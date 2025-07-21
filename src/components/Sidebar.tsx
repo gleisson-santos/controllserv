@@ -74,22 +74,28 @@ export default function Sidebar({ selectedDate }: SidebarProps) {
 
   const loadDailyInfo = async () => {
     try {
-      const { data: dailyInfoData, error } = await supabase
+      const { data, error } = await supabase
         .from('daily_info')
         .select('*')
         .eq('date', selectedDate)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
-
-      if (dailyInfoData) {
+      if (error) throw error;
+      
+      if (data) {
         setDailyInfo({
-          extravasamento: dailyInfoData.extravasamento || 0,
-          servico_turma_02: dailyInfoData.servico_turma_02 || 0,
-          servico_turma_05: dailyInfoData.servico_turma_05 || 0,
-          oge: dailyInfoData.oge || 0
+          extravasamento: data.extravasamento || 0,
+          servico_turma_02: data.servico_turma_02 || 0,
+          servico_turma_05: data.servico_turma_05 || 0,
+          oge: data.oge || 0
+        });
+      } else {
+        // Reset to default values if no data found
+        setDailyInfo({
+          extravasamento: 0,
+          servico_turma_02: 0,
+          servico_turma_05: 0,
+          oge: 0
         });
       }
     } catch (error) {
@@ -98,27 +104,32 @@ export default function Sidebar({ selectedDate }: SidebarProps) {
   };
 
   const saveDailyInfo = async () => {
+    if (!dailyInfo) return;
+    
     setSaving(true);
     try {
       const { error } = await supabase
         .from('daily_info')
         .upsert({
           date: selectedDate,
-          ...dailyInfo
+          extravasamento: dailyInfo.extravasamento,
+          servico_turma_02: dailyInfo.servico_turma_02,
+          servico_turma_05: dailyInfo.servico_turma_05,
+          oge: dailyInfo.oge
         });
 
       if (error) throw error;
-
+      
       toast({
-        title: "Dados salvos",
-        description: "Informativo geral salvo com sucesso!",
+        title: "Sucesso",
+        description: "Informações salvas com sucesso!",
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving daily info:', error);
       toast({
-        title: "Erro ao salvar",
-        description: error.message,
-        variant: "destructive"
+        title: "Erro",
+        description: "Erro ao salvar informações",
+        variant: "destructive",
       });
     } finally {
       setSaving(false);

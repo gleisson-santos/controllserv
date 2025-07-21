@@ -7,14 +7,14 @@
 @layer base {
   :root {
     /* Fleet Management Color System - All HSL */
-    --background: 248 250 252; /* #f8fafc */
-    --foreground: 51 65 85; /* #334155 */
+    --background: 0 0% 100%; /* white */
+    --foreground: 222 47% 11%; /* #1e293b */
 
     --card: 0 0% 100%; /* white */
-    --card-foreground: 51 65 85; /* #334155 */
+    --card-foreground: 222 47% 11%; /* #1e293b */
 
     --popover: 0 0% 100%; /* white */
-    --popover-foreground: 51 65 85; /* #334155 */
+    --popover-foreground: 222 47% 11%; /* #1e293b */
 
     --primary: 217 91% 60%; /* #3b82f6 */
     --primary-foreground: 0 0% 100%; /* white */
