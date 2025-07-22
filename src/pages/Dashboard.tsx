@@ -11,6 +11,7 @@ export default function Dashboard() {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -102,12 +103,16 @@ export default function Dashboard() {
             <VehicleManagement 
               selectedDate={selectedDate}
               onDateChange={setSelectedDate}
+              refreshTrigger={refreshTrigger}
             />
           </div>
 
           {/* Sidebar - 1/3 width */}
           <div>
-            <Sidebar selectedDate={selectedDate} />
+            <Sidebar 
+              selectedDate={selectedDate} 
+              onDataSaved={() => setRefreshTrigger(prev => prev + 1)}
+            />
           </div>
         </div>
       </div>

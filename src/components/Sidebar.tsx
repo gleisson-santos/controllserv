@@ -9,6 +9,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface SidebarProps {
   selectedDate: string;
+  onDataSaved?: () => void;
 }
 
 interface FleetStats {
@@ -24,7 +25,7 @@ interface DailyInfo {
   oge: number;
 }
 
-export default function Sidebar({ selectedDate }: SidebarProps) {
+export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
   const [fleetStats, setFleetStats] = useState<FleetStats>({
     funcionando: 0,
     quebrado: 0,
@@ -129,6 +130,9 @@ export default function Sidebar({ selectedDate }: SidebarProps) {
         title: "Sucesso",
         description: "Informações salvas com sucesso!",
       });
+      
+      // Trigger refresh of chart
+      onDataSaved?.();
     } catch (error) {
       console.error('Error saving daily info:', error);
       toast({

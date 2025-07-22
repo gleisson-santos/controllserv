@@ -7,6 +7,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 interface SituationChartProps {
   selectedDate: string;
+  refreshTrigger?: number;
 }
 
 interface DailyInfo {
@@ -16,7 +17,7 @@ interface DailyInfo {
   oge: number;
 }
 
-export default function SituationChart({ selectedDate }: SituationChartProps) {
+export default function SituationChart({ selectedDate, refreshTrigger }: SituationChartProps) {
   const [data, setData] = useState<DailyInfo>({
     extravasamento: 0,
     servico_turma_02: 0,
@@ -26,7 +27,7 @@ export default function SituationChart({ selectedDate }: SituationChartProps) {
 
   useEffect(() => {
     loadDailyInfo();
-  }, [selectedDate]);
+  }, [selectedDate, refreshTrigger]);
 
   const loadDailyInfo = async () => {
     try {

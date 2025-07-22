@@ -8,6 +8,7 @@ import SituationChart from './SituationChart';
 interface VehicleManagementProps {
   selectedDate: string;
   onDateChange: (date: string) => void;
+  refreshTrigger?: number;
 }
 
 export interface Vehicle {
@@ -29,7 +30,7 @@ export interface VehicleStatus {
   driver?: string;
 }
 
-export default function VehicleManagement({ selectedDate, onDateChange }: VehicleManagementProps) {
+export default function VehicleManagement({ selectedDate, onDateChange, refreshTrigger }: VehicleManagementProps) {
   const [vehicles, setVehicles] = useState<VehicleStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -233,7 +234,10 @@ export default function VehicleManagement({ selectedDate, onDateChange }: Vehicl
 
       {/* Situation Chart */}
       <div className="p-6">
-        <SituationChart selectedDate={selectedDate} />
+        <SituationChart 
+          selectedDate={selectedDate} 
+          refreshTrigger={refreshTrigger}
+        />
       </div>
 
       {/* Vehicle Modal */}
