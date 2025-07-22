@@ -29,7 +29,9 @@ export default function DailyObservations({ selectedDate }: DailyObservationsPro
 
   useEffect(() => {
     if (selectedDate) {
-      setObservationDate(selectedDate);
+      // Use current date instead of selectedDate for new observations
+      const today = new Date().toISOString().split('T')[0];
+      setObservationDate(today);
       loadObservations();
       loadHistory();
     }

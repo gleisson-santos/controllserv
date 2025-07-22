@@ -30,11 +30,11 @@ export default function SituationChart({ selectedDate }: SituationChartProps) {
 
   const loadDailyInfo = async () => {
     try {
-      const { data: dailyInfo, error } = await supabase
-        .from('daily_info')
+      const { data: dailyInfo, error } = await (supabase as any)
+        .from('general_info')
         .select('*')
         .eq('date', selectedDate)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         throw error;

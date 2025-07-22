@@ -12,39 +12,7 @@ interface VehicleTableProps {
 }
 
 export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, onRefresh }: VehicleTableProps) {
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
 
-  const updateVehicleStatus = async (vehicleId: string, status: string, observations?: string) => {
-    setUpdatingStatus(vehicleId);
-    try {
-      const { error } = await supabase
-        .from('vehicle_status')
-        .upsert({
-          vehicle_id: vehicleId,
-          date: selectedDate,
-          status: status as any,
-          observations: observations || null
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Status atualizado",
-        description: "Status do veículo atualizado com sucesso!",
-      });
-
-      onRefresh();
-    } catch (error: any) {
-      console.error('Error updating status:', error);
-      toast({
-        title: "Erro ao atualizar status",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setUpdatingStatus(null);
-    }
-  };
 
   const deleteVehicle = async (vehicleId: string) => {
     if (!confirm('Tem certeza que deseja excluir este veículo?')) return;
@@ -136,27 +104,9 @@ export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, 
                 </span>
               </td>
               <td className="px-6 py-4 max-w-xs">
-                <input
-                  type="text"
-                  value={vehicleStatus.observations || ''}
-                  onChange={(e) => {
-                    const newObservations = e.target.value;
-                    // Update locally first for better UX
-                    const updatedVehicles = vehicles.map(v => 
-                      v.vehicle_id === vehicleStatus.vehicle_id 
-                        ? { ...v, observations: newObservations }
-                        : v
-                    );
-                    // Debounce the actual update
-                    setTimeout(() => {
-                      updateVehicleStatus(vehicleStatus.vehicle_id, vehicleStatus.status, newObservations);
-                    }, 1000);
-                  }}
-                  placeholder="Adicionar observações..."
-                  className="text-sm w-full border border-input rounded px-2 py-1 focus:ring-1 focus:ring-ring"
-                  style={{ fontSize: '13px' }}
-                  title={vehicleStatus.observations || ''}
-                />
+                <div className="text-sm text-muted-foreground truncate" title={vehicleStatus.observations || 'Sem observações'}>
+                  {vehicleStatus.observations || 'Sem observações'}
+                </div>
               </td>
               <td className="px-6 py-4 text-center">
                 <div className="flex justify-center gap-2">
