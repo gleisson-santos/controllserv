@@ -79,6 +79,8 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
             status,
             observations,
             created_by: user.id
+          }, {
+            onConflict: 'vehicle_id,date'
           });
 
         if (statusError) throw statusError;
