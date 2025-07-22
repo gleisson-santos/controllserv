@@ -108,6 +108,10 @@ export default function Sidebar({ selectedDate }: SidebarProps) {
     
     setSaving(true);
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
       const { error } = await (supabase as any)
         .from('general_info')
         .upsert({
@@ -115,7 +119,8 @@ export default function Sidebar({ selectedDate }: SidebarProps) {
           extravasamento: dailyInfo.extravasamento,
           servico_turma_02: dailyInfo.servico_turma_02,
           servico_turma_05: dailyInfo.servico_turma_05,
-          oge: dailyInfo.oge
+          oge: dailyInfo.oge,
+          created_by: user.id
         });
 
       if (error) throw error;

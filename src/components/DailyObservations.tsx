@@ -76,11 +76,16 @@ export default function DailyObservations({ selectedDate }: DailyObservationsPro
     
     setSaving(true);
     try {
+      // Get current user
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) throw new Error('Usuário não autenticado');
+
       const { error } = await supabase
         .from('daily_observations')
         .upsert({
           date: observationDate,
-          content: observations
+          content: observations,
+          created_by: currentUser.id
         });
 
       if (error) throw error;

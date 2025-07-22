@@ -66,6 +66,10 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
 
         if (error) throw error;
 
+        // Get current user for status update
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Usuário não autenticado');
+
         // Update vehicle status
         const { error: statusError } = await supabase
           .from('vehicle_status')
@@ -73,7 +77,8 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
             vehicle_id: vehicle.id,
             date: selectedDate,
             status,
-            observations
+            observations,
+            created_by: user.id
           });
 
         if (statusError) throw statusError;
@@ -83,10 +88,18 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
           description: "Veículo atualizado com sucesso!",
         });
       } else {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Usuário não autenticado');
+
         // Create new vehicle
         const { data: newVehicle, error } = await supabase
           .from('vehicles')
-          .insert({ name, type })
+          .insert({ 
+            name, 
+            type,
+            created_by: user.id
+          })
           .select()
           .single();
 
@@ -99,7 +112,8 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
             vehicle_id: newVehicle.id,
             date: selectedDate,
             status,
-            observations
+            observations,
+            created_by: user.id
           });
 
         if (statusError) throw statusError;
