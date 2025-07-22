@@ -27,21 +27,7 @@ export default function StatsCards({ selectedDate }: StatsCardsProps) {
   const loadStats = async () => {
     console.log('Loading stats for date:', selectedDate);
     try {
-      // Get all vehicles
-      const { data: vehicles, error: vehiclesError } = await supabase
-        .from('vehicles')
-        .select('id');
-
-      if (vehiclesError) throw vehiclesError;
-
-      const total = vehicles?.length || 0;
-
-      if (total === 0) {
-        setStats({ total: 0, funcionando: 0, quebrado: 0, emprestado: 0 });
-        return;
-      }
-
-      // Get vehicle status for selected date
+      // Get vehicle status for selected date only
       const { data: statusData, error: statusError } = await supabase
         .from('vehicle_status')
         .select('status')
@@ -55,13 +41,16 @@ export default function StatsCards({ selectedDate }: StatsCardsProps) {
         emprestado: 0
       };
 
+      // Count only vehicles with status for the selected date
       statusData?.forEach(item => {
         if (item.status === 'Funcionando - Operando' || item.status === 'Funcionando - Parado') statusCounts.funcionando++;
         else if (item.status === 'Manutenção - Veiculo' || item.status === 'Manutenção - Equipamento') statusCounts.quebrado++;
         else if (item.status === 'Emprestado') statusCounts.emprestado++;
       });
 
-      console.log('Stats data loaded:', { statusData, statusCounts });
+      const total = statusData?.length || 0;
+
+      console.log('Stats data loaded:', { statusData, statusCounts, total });
 
       setStats({
         total,

@@ -139,7 +139,7 @@
   }
   
   .status-quebrado {
-    @apply bg-red-100 text-red-800;
+    @apply bg-pink-100 text-pink-800;
   }
   
   .status-emprestado {

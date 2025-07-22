@@ -43,38 +43,37 @@ export default function VehicleManagement({ selectedDate, onDateChange }: Vehicl
   const loadVehicles = async () => {
     setLoading(true);
     try {
-      // Get all vehicles with their status for the selected date
-      const { data: vehiclesData, error: vehiclesError } = await supabase
-        .from('vehicles')
-        .select('*')
-        .order('name');
-
-      if (vehiclesError) throw vehiclesError;
-
-      // Get status for selected date
+      // Get only vehicles that have status for the selected date
       const { data: statusData, error: statusError } = await supabase
         .from('vehicle_status')
-        .select('*')
+        .select(`
+          *,
+          vehicles:vehicle_id (
+            id,
+            name,
+            type,
+            driver,
+            created_at,
+            updated_at
+          )
+        `)
         .eq('date', selectedDate);
 
       if (statusError) throw statusError;
 
-      // Combine vehicles with their status
-      const vehiclesWithStatus: VehicleStatus[] = vehiclesData?.map(vehicle => {
-        const status = statusData?.find(s => s.vehicle_id === vehicle.id);
-        return {
-          id: status?.id || '',
-          vehicle_id: vehicle.id,
-          date: selectedDate,
-          status: (status?.status as any) || 'Funcionando - Operando',
-          observations: status?.observations || null,
-          driver: status?.driver || vehicle.driver || '',
-          vehicle: {
-            ...vehicle,
-            type: vehicle.type as 'DESTACK' | 'EMBASA' | 'OUTROS'
-          }
-        };
-      }) || [];
+      // Map to VehicleStatus format - only show vehicles with actual status for the date
+      const vehiclesWithStatus: VehicleStatus[] = statusData?.map(status => ({
+        id: status.id,
+        vehicle_id: status.vehicle_id,
+        date: selectedDate,
+        status: status.status as any,
+        observations: status.observations || null,
+        driver: status.driver || (status.vehicles as any)?.driver || '',
+        vehicle: {
+          ...(status.vehicles as any),
+          type: (status.vehicles as any)?.type as 'DESTACK' | 'EMBASA' | 'OUTROS'
+        }
+      })) || [];
 
       setVehicles(vehiclesWithStatus);
     } catch (error: any) {

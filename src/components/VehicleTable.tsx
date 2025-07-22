@@ -67,25 +67,25 @@ export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, 
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
+      <table className="w-full table-auto">
         <thead className="bg-muted/50 sticky top-0">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-28">
               Placa
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">
               Motorista
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">
               Tipo
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-44">
               Status
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Observações
             </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <th className="px-4 py-3 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider w-20">
               Ações
             </th>
           </tr>
@@ -93,26 +93,26 @@ export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, 
         <tbody className="bg-card divide-y divide-border">
           {vehicles.map((vehicleStatus) => (
             <tr key={vehicleStatus.vehicle_id} className="hover:bg-muted/25">
-              <td className="px-6 py-4 text-sm font-medium text-foreground">
+              <td className="px-4 py-4 text-sm font-medium text-foreground">
                 {vehicleStatus.vehicle?.name}
               </td>
-              <td className="px-6 py-4 text-sm text-muted-foreground">
+              <td className="px-4 py-4 text-sm text-muted-foreground">
                 {vehicleStatus.driver || '-'}
               </td>
-              <td className="px-6 py-4 text-sm text-muted-foreground">
+              <td className="px-4 py-4 text-sm text-muted-foreground">
                 {vehicleStatus.vehicle?.type}
               </td>
-              <td className="px-6 py-4">
-                <span className={`status-badge ${getStatusBadgeClass(vehicleStatus.status)}`}>
+              <td className="px-4 py-4">
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusBadgeClass(vehicleStatus.status)}`}>
                   {vehicleStatus.status}
                 </span>
               </td>
-              <td className="px-6 py-4 max-w-xs">
+              <td className="px-4 py-4 max-w-xs">
                 <div className="text-sm text-muted-foreground truncate" title={vehicleStatus.observations || 'Sem observações'}>
                   {vehicleStatus.observations || 'Sem observações'}
                 </div>
               </td>
-              <td className="px-6 py-4 text-center">
+              <td className="px-4 py-4 text-center">
                 <div className="flex justify-center gap-2">
                   <button
                     onClick={() => vehicleStatus.vehicle && onEdit(vehicleStatus.vehicle)}
