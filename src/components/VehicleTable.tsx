@@ -43,16 +43,14 @@ export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, 
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'Funcionando':
+      case 'Funcionando - Operando':
+      case 'Funcionando - Parado':
         return 'status-funcionando';
-      case 'Quebrado':
+      case 'Manutenção - Veiculo':
+      case 'Manutenção - Equipamento':
         return 'status-quebrado';
       case 'Emprestado':
         return 'status-emprestado';
-      case 'Manutenção':
-        return 'status-manutencao';
-      case 'Indisponível':
-        return 'status-indisponivel';
       default:
         return 'status-funcionando';
     }
@@ -73,7 +71,10 @@ export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, 
         <thead className="bg-muted/50 sticky top-0">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Veículo
+              Placa
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Motorista
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Tipo
@@ -94,6 +95,9 @@ export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, 
             <tr key={vehicleStatus.vehicle_id} className="hover:bg-muted/25">
               <td className="px-6 py-4 text-sm font-medium text-foreground">
                 {vehicleStatus.vehicle?.name}
+              </td>
+              <td className="px-6 py-4 text-sm text-muted-foreground">
+                {vehicleStatus.driver || '-'}
               </td>
               <td className="px-6 py-4 text-sm text-muted-foreground">
                 {vehicleStatus.vehicle?.type}

@@ -15,18 +15,21 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
   const [type, setType] = useState<'DESTACK' | 'EMBASA' | 'OUTROS'>('OUTROS');
   const [status, setStatus] = useState<'Funcionando - Operando' | 'Funcionando - Parado' | 'Manutenção - Veiculo' | 'Manutenção - Equipamento' | 'Emprestado'>('Funcionando - Operando');
   const [observations, setObservations] = useState('');
+  const [driver, setDriver] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (vehicle) {
       setName(vehicle.name);
       setType(vehicle.type);
+      setDriver(vehicle.driver || '');
       loadVehicleStatus();
     } else {
       setName('');
       setType('OUTROS');
       setStatus('Funcionando - Operando');
       setObservations('');
+      setDriver('');
     }
   }, [vehicle, selectedDate]);
 
@@ -36,7 +39,7 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
     try {
       const { data, error } = await supabase
         .from('vehicle_status')
-        .select('status, observations')
+        .select('status, observations, driver')
         .eq('vehicle_id', vehicle.id)
         .eq('date', selectedDate)
         .maybeSingle();
@@ -46,6 +49,7 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
       if (data) {
         setStatus(data.status as any);
         setObservations(data.observations || '');
+        setDriver(data.driver || '');
       }
     } catch (error) {
       console.error('Error loading vehicle status:', error);
@@ -63,7 +67,7 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
         // Update existing vehicle
         const { error } = await supabase
           .from('vehicles')
-          .update({ name, type })
+          .update({ name, type, driver })
           .eq('id', vehicle.id);
 
         if (error) {
@@ -93,6 +97,7 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
             date: selectedDate,
             status,
             observations,
+            driver,
             created_by: user.id
           }, {
             onConflict: 'vehicle_id,date'
@@ -120,6 +125,7 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
           .insert({ 
             name, 
             type,
+            driver,
             created_by: user.id
           })
           .select()
@@ -135,6 +141,7 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
             date: selectedDate,
             status,
             observations,
+            driver,
             created_by: user.id
           });
 
@@ -177,15 +184,28 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Nome do Veículo
+              Placa
             </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
-              placeholder="Ex: Carro 001"
+              placeholder="Ex: ABC-1234"
               required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Motorista
+            </label>
+            <input
+              type="text"
+              value={driver}
+              onChange={(e) => setDriver(e.target.value)}
+              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
+              placeholder="Nome do motorista"
             />
           </div>
 

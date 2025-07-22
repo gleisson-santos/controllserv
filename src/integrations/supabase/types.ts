@@ -106,6 +106,7 @@ export type Database = {
           created_at: string
           created_by: string
           date: string
+          driver: string | null
           id: string
           observations: string | null
           status: string
@@ -116,6 +117,7 @@ export type Database = {
           created_at?: string
           created_by: string
           date: string
+          driver?: string | null
           id?: string
           observations?: string | null
           status: string
@@ -126,6 +128,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           date?: string
+          driver?: string | null
           id?: string
           observations?: string | null
           status?: string
@@ -147,6 +150,7 @@ export type Database = {
           created_at: string
           created_by: string
           date: string | null
+          driver: string | null
           id: string
           name: string
           type: string
@@ -156,6 +160,7 @@ export type Database = {
           created_at?: string
           created_by: string
           date?: string | null
+          driver?: string | null
           id?: string
           name: string
           type: string
@@ -165,6 +170,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           date?: string | null
+          driver?: string | null
           id?: string
           name?: string
           type?: string

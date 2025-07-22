@@ -16,6 +16,7 @@ export interface Vehicle {
   type: 'DESTACK' | 'EMBASA' | 'OUTROS';
   created_at: string;
   updated_at: string;
+  driver?: string;
 }
 
 export interface VehicleStatus {
@@ -25,6 +26,7 @@ export interface VehicleStatus {
   status: 'Funcionando - Operando' | 'Funcionando - Parado' | 'Manutenção - Veiculo' | 'Manutenção - Equipamento' | 'Emprestado';
   observations: string | null;
   vehicle?: Vehicle;
+  driver?: string;
 }
 
 export default function VehicleManagement({ selectedDate, onDateChange }: VehicleManagementProps) {
@@ -66,6 +68,7 @@ export default function VehicleManagement({ selectedDate, onDateChange }: Vehicl
           date: selectedDate,
           status: (status?.status as any) || 'Funcionando - Operando',
           observations: status?.observations || null,
+          driver: status?.driver || vehicle.driver || '',
           vehicle: {
             ...vehicle,
             type: vehicle.type as 'DESTACK' | 'EMBASA' | 'OUTROS'
@@ -127,6 +130,7 @@ export default function VehicleManagement({ selectedDate, onDateChange }: Vehicl
         date: selectedDate,
         status: item.status,
         observations: item.observations,
+        driver: item.driver,
         created_by: user.id
       }));
 
