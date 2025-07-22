@@ -26,6 +26,7 @@ export default function SituationChart({ selectedDate, refreshTrigger }: Situati
   });
 
   useEffect(() => {
+    console.log('SituationChart - Loading data for date:', selectedDate, 'refreshTrigger:', refreshTrigger);
     loadDailyInfo();
   }, [selectedDate, refreshTrigger]);
 
@@ -42,6 +43,7 @@ export default function SituationChart({ selectedDate, refreshTrigger }: Situati
       }
 
       if (dailyInfo) {
+        console.log('SituationChart - Data loaded:', dailyInfo);
         setData({
           extravasamento: dailyInfo.extravasamento || 0,
           servico_turma_02: dailyInfo.servico_turma_02 || 0,

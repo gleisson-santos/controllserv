@@ -132,6 +132,7 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
       });
       
       // Trigger refresh of chart
+      console.log('Sidebar - Data saved, triggering refresh');
       onDataSaved?.();
     } catch (error) {
       console.error('Error saving daily info:', error);
