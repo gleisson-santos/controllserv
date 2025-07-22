@@ -61,8 +61,8 @@ export default function Sidebar({ selectedDate }: SidebarProps) {
       };
 
       statusData?.forEach(item => {
-        if (item.status === 'Funcionando') stats.funcionando++;
-        else if (item.status === 'Quebrado') stats.quebrado++;
+        if (item.status === 'Funcionando - Operando' || item.status === 'Funcionando - Parado') stats.funcionando++;
+        else if (item.status === 'Manutenção - Veiculo' || item.status === 'Manutenção - Equipamento') stats.quebrado++;
         else if (item.status === 'Emprestado') stats.emprestado++;
       });
 

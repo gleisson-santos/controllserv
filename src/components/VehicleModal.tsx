@@ -13,7 +13,7 @@ interface VehicleModalProps {
 export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }: VehicleModalProps) {
   const [name, setName] = useState('');
   const [type, setType] = useState<'DESTACK' | 'EMBASA' | 'OUTROS'>('OUTROS');
-  const [status, setStatus] = useState<'Funcionando' | 'Quebrado' | 'Emprestado' | 'Manutenção' | 'Indisponível'>('Funcionando');
+  const [status, setStatus] = useState<'Funcionando - Operando' | 'Funcionando - Parado' | 'Manutenção - Veiculo' | 'Manutenção - Equipamento' | 'Emprestado'>('Funcionando - Operando');
   const [observations, setObservations] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +25,7 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
     } else {
       setName('');
       setType('OUTROS');
-      setStatus('Funcionando');
+      setStatus('Funcionando - Operando');
       setObservations('');
     }
   }, [vehicle, selectedDate]);
@@ -210,14 +210,14 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
             </label>
             <select
               value={status}
-              onChange={(e) => setStatus(e.target.value as 'Funcionando' | 'Quebrado' | 'Emprestado' | 'Manutenção' | 'Indisponível')}
+              onChange={(e) => setStatus(e.target.value as 'Funcionando - Operando' | 'Funcionando - Parado' | 'Manutenção - Veiculo' | 'Manutenção - Equipamento' | 'Emprestado')}
               className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
             >
-              <option value="Funcionando">Funcionando</option>
-              <option value="Quebrado">Quebrado</option>
+              <option value="Funcionando - Operando">Funcionando - Operando</option>
+              <option value="Funcionando - Parado">Funcionando - Parado</option>
+              <option value="Manutenção - Veiculo">Manutenção - Veiculo</option>
+              <option value="Manutenção - Equipamento">Manutenção - Equipamento</option>
               <option value="Emprestado">Emprestado</option>
-              <option value="Manutenção">Manutenção</option>
-              <option value="Indisponível">Indisponível</option>
             </select>
           </div>
 

@@ -22,7 +22,7 @@ export interface VehicleStatus {
   id: string;
   vehicle_id: string;
   date: string;
-  status: 'Funcionando' | 'Quebrado' | 'Emprestado' | 'Manutenção' | 'Indisponível';
+  status: 'Funcionando - Operando' | 'Funcionando - Parado' | 'Manutenção - Veiculo' | 'Manutenção - Equipamento' | 'Emprestado';
   observations: string | null;
   vehicle?: Vehicle;
 }
@@ -64,7 +64,7 @@ export default function VehicleManagement({ selectedDate, onDateChange }: Vehicl
           id: status?.id || '',
           vehicle_id: vehicle.id,
           date: selectedDate,
-          status: (status?.status as any) || 'Funcionando',
+          status: (status?.status as any) || 'Funcionando - Operando',
           observations: status?.observations || null,
           vehicle: {
             ...vehicle,
@@ -217,12 +217,6 @@ export default function VehicleManagement({ selectedDate, onDateChange }: Vehicl
           </button>
         </div>
         
-        <div className="mt-4">
-          <p className="text-sm text-muted-foreground">
-            <i className="fas fa-calendar-day mr-1"></i>
-            Dados de: {formatDisplayDate(selectedDate)}
-          </p>
-        </div>
       </div>
 
       {/* Vehicle Table */}

@@ -56,8 +56,8 @@ export default function StatsCards({ selectedDate }: StatsCardsProps) {
       };
 
       statusData?.forEach(item => {
-        if (item.status === 'Funcionando') statusCounts.funcionando++;
-        else if (item.status === 'Quebrado') statusCounts.quebrado++;
+        if (item.status === 'Funcionando - Operando' || item.status === 'Funcionando - Parado') statusCounts.funcionando++;
+        else if (item.status === 'Manutenção - Veiculo' || item.status === 'Manutenção - Equipamento') statusCounts.quebrado++;
         else if (item.status === 'Emprestado') statusCounts.emprestado++;
       });
 
