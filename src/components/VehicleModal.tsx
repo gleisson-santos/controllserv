@@ -44,7 +44,7 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
       if (error) throw error;
       
       if (data) {
-        setStatus(data.status);
+        setStatus(data.status as any);
         setObservations(data.observations || '');
       }
     } catch (error) {
@@ -58,17 +58,32 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
 
     try {
       if (vehicle) {
+        console.log('Updating vehicle:', vehicle.id, { name, type });
+        
         // Update existing vehicle
         const { error } = await supabase
           .from('vehicles')
           .update({ name, type })
           .eq('id', vehicle.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error updating vehicle:', error);
+          throw error;
+        }
+
+        console.log('Vehicle updated successfully, now updating status...');
 
         // Get current user for status update
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Usuário não autenticado');
+
+        console.log('Updating vehicle status:', {
+          vehicle_id: vehicle.id,
+          date: selectedDate,
+          status,
+          observations,
+          created_by: user.id
+        });
 
         // Update vehicle status
         const { error: statusError } = await supabase
@@ -83,7 +98,12 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
             onConflict: 'vehicle_id,date'
           });
 
-        if (statusError) throw statusError;
+        if (statusError) {
+          console.error('Error updating vehicle status:', statusError);
+          throw statusError;
+        }
+
+        console.log('Vehicle status updated successfully');
 
         toast({
           title: "Veículo atualizado",

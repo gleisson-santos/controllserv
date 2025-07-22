@@ -64,9 +64,12 @@ export default function VehicleManagement({ selectedDate, onDateChange }: Vehicl
           id: status?.id || '',
           vehicle_id: vehicle.id,
           date: selectedDate,
-          status: status?.status || 'Funcionando',
+          status: (status?.status as any) || 'Funcionando',
           observations: status?.observations || null,
-          vehicle
+          vehicle: {
+            ...vehicle,
+            type: vehicle.type as 'DESTACK' | 'EMBASA' | 'OUTROS'
+          }
         };
       }) || [];
 
@@ -106,6 +109,10 @@ export default function VehicleManagement({ selectedDate, onDateChange }: Vehicl
         return;
       }
 
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Usuário não autenticado');
+
       // Delete existing data for current date
       const { error: deleteError } = await supabase
         .from('vehicle_status')
@@ -119,7 +126,8 @@ export default function VehicleManagement({ selectedDate, onDateChange }: Vehicl
         vehicle_id: item.vehicle_id,
         date: selectedDate,
         status: item.status,
-        observations: item.observations
+        observations: item.observations,
+        created_by: user.id
       }));
 
       const { error: insertError } = await supabase

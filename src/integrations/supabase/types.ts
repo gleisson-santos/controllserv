@@ -14,58 +14,88 @@ export type Database = {
   }
   public: {
     Tables: {
-      daily_info: {
+      daily_observations: {
         Row: {
+          content: string
           created_at: string
+          created_by: string
           date: string
-          extravasamento: number | null
           id: string
-          oge: number | null
-          servico_turma_02: number | null
-          servico_turma_05: number | null
           updated_at: string
         }
         Insert: {
+          content: string
           created_at?: string
+          created_by: string
           date: string
-          extravasamento?: number | null
           id?: string
-          oge?: number | null
-          servico_turma_02?: number | null
-          servico_turma_05?: number | null
           updated_at?: string
         }
         Update: {
+          content?: string
           created_at?: string
+          created_by?: string
           date?: string
-          extravasamento?: number | null
           id?: string
-          oge?: number | null
-          servico_turma_02?: number | null
-          servico_turma_05?: number | null
           updated_at?: string
         }
         Relationships: []
       }
-      daily_observations: {
+      general_info: {
         Row: {
-          content: string | null
           created_at: string
+          created_by: string
           date: string
+          extravasamento: number
+          id: string
+          oge: number
+          servico_turma_02: number
+          servico_turma_05: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          date: string
+          extravasamento?: number
+          id?: string
+          oge?: number
+          servico_turma_02?: number
+          servico_turma_05?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          date?: string
+          extravasamento?: number
+          id?: string
+          oge?: number
+          servico_turma_02?: number
+          servico_turma_05?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
           id: string
           updated_at: string
         }
         Insert: {
-          content?: string | null
           created_at?: string
-          date: string
-          id?: string
+          email: string
+          full_name?: string | null
+          id: string
           updated_at?: string
         }
         Update: {
-          content?: string | null
           created_at?: string
-          date?: string
+          email?: string
+          full_name?: string | null
           id?: string
           updated_at?: string
         }
@@ -74,28 +104,31 @@ export type Database = {
       vehicle_status: {
         Row: {
           created_at: string
+          created_by: string
           date: string
           id: string
           observations: string | null
-          status: Database["public"]["Enums"]["vehicle_status_enum"]
+          status: string
           updated_at: string
           vehicle_id: string
         }
         Insert: {
           created_at?: string
+          created_by: string
           date: string
           id?: string
           observations?: string | null
-          status?: Database["public"]["Enums"]["vehicle_status_enum"]
+          status: string
           updated_at?: string
           vehicle_id: string
         }
         Update: {
           created_at?: string
+          created_by?: string
           date?: string
           id?: string
           observations?: string | null
-          status?: Database["public"]["Enums"]["vehicle_status_enum"]
+          status?: string
           updated_at?: string
           vehicle_id?: string
         }
@@ -112,23 +145,26 @@ export type Database = {
       vehicles: {
         Row: {
           created_at: string
+          created_by: string
           id: string
           name: string
-          type: Database["public"]["Enums"]["vehicle_type"]
+          type: string
           updated_at: string
         }
         Insert: {
           created_at?: string
+          created_by: string
           id?: string
           name: string
-          type?: Database["public"]["Enums"]["vehicle_type"]
+          type: string
           updated_at?: string
         }
         Update: {
           created_at?: string
+          created_by?: string
           id?: string
           name?: string
-          type?: Database["public"]["Enums"]["vehicle_type"]
+          type?: string
           updated_at?: string
         }
         Relationships: []
@@ -138,7 +174,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_daily_vehicle_summary: {
+        Args: { target_date?: string }
+        Returns: {
+          total_vehicles: number
+          funcionando: number
+          quebrado_veiculo: number
+          quebrado_equipamento: number
+          emprestado: number
+          baixado: number
+          reformando: number
+        }[]
+      }
+      get_pending_notes_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          category: string
+          total_notes: number
+          high_priority: number
+          pending_count: number
+        }[]
+      }
     }
     Enums: {
       vehicle_status_enum:

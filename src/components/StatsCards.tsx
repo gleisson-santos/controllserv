@@ -25,6 +25,7 @@ export default function StatsCards({ selectedDate }: StatsCardsProps) {
   }, [selectedDate]);
 
   const loadStats = async () => {
+    console.log('Loading stats for date:', selectedDate);
     try {
       // Get all vehicles
       const { data: vehicles, error: vehiclesError } = await supabase
@@ -59,6 +60,8 @@ export default function StatsCards({ selectedDate }: StatsCardsProps) {
         else if (item.status === 'Quebrado') statusCounts.quebrado++;
         else if (item.status === 'Emprestado') statusCounts.emprestado++;
       });
+
+      console.log('Stats data loaded:', { statusData, statusCounts });
 
       setStats({
         total,
