@@ -146,13 +146,9 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
     }
   };
 
-  const resetDailyInfo = () => {
-    setDailyInfo({
-      extravasamento: 0,
-      servico_turma_02: 0,
-      servico_turma_05: 0,
-      oge: 0
-    });
+  const enableEdit = () => {
+    // Function to enable editing - inputs are already editable
+    // Could add additional logic here if needed
   };
 
   const chartData = {
@@ -276,11 +272,11 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
             Salvar
           </button>
           <button
-            onClick={resetDailyInfo}
+            onClick={enableEdit}
             className="btn-secondary flex-1"
           >
-            <i className="fas fa-undo"></i>
-            Resetar
+            <i className="fas fa-edit"></i>
+            Editar
           </button>
         </div>
       </div>
