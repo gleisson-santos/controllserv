@@ -40,8 +40,11 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
   });
 
   const [saving, setSaving] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [hasExistingData, setHasExistingData] = useState(false);
 
   useEffect(() => {
+    setIsEditing(false); // Reset editing state when date changes
     loadFleetStats();
     loadDailyInfo();
   }, [selectedDate]);
@@ -86,6 +89,7 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
       if (error) throw error;
       
       if (data) {
+        setHasExistingData(true);
         setDailyInfo({
           extravasamento: data.extravasamento || 0,
           servico_turma_02: data.servico_turma_02 || 0,
@@ -93,6 +97,7 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
           oge: data.oge || 0
         });
       } else {
+        setHasExistingData(false);
         // Reset to default values if no data found
         setDailyInfo({
           extravasamento: 0,
@@ -103,6 +108,7 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
       }
     } catch (error) {
       console.error('Error loading daily info:', error);
+      setHasExistingData(false);
     }
   };
 
@@ -124,13 +130,18 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
           servico_turma_05: dailyInfo.servico_turma_05,
           oge: dailyInfo.oge,
           created_by: user.id
+        }, {
+          onConflict: 'date,created_by'
         });
 
       if (error) throw error;
       
+      setHasExistingData(true);
+      setIsEditing(false);
+      
       toast({
         title: "Sucesso",
-        description: "Informações salvas com sucesso!",
+        description: hasExistingData ? "Informações atualizadas com sucesso!" : "Informações salvas com sucesso!",
       });
       
       // Trigger refresh of chart
@@ -149,8 +160,11 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
   };
 
   const enableEdit = () => {
-    // Function to enable editing - inputs are already editable
-    // Could add additional logic here if needed
+    setIsEditing(true);
+    toast({
+      title: "Modo de edição ativado",
+      description: "Você pode agora editar os valores. Clique em 'Salvar' para confirmar as alterações.",
+    });
   };
 
   const chartData = {
@@ -199,9 +213,21 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
 
       {/* General Information */}
       <div className="bg-card rounded-lg p-6 border border-border">
-        <h3 className="text-lg font-semibold text-foreground mb-4">
-          Informativo Geral
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-foreground">
+            Informativo Geral
+          </h3>
+          {hasExistingData && (
+            <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+              Dados salvos
+            </span>
+          )}
+          {isEditing && (
+            <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+              Editando
+            </span>
+          )}
+        </div>
         <p className="text-sm text-muted-foreground mb-4">
           Situação de demandas e serviços
         </p>
