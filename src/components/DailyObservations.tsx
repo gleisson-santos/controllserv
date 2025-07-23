@@ -256,7 +256,7 @@ export default function DailyObservations({ selectedDate }: DailyObservationsPro
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-center">
                     <CardTitle className="text-sm font-medium">
-                      📅 {formatDate(item.date)}
+                      📅 {new Date(item.created_at).toLocaleDateString('pt-BR')}
                     </CardTitle>
                     <div className="flex gap-2">
                       {editingId === item.id ? (
