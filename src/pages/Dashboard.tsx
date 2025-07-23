@@ -12,7 +12,11 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(() => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    // Obtém o dia, mês e ano no fuso horário local
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0'); // Mês é base 0
+    const day = today.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`; // Formato "YYYY-MM-DD"
   });
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -52,7 +56,9 @@ export default function Dashboard() {
   };
 
   const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
+    // Ao criar a data a partir de "YYYY-MM-DD", ela será interpretada como fuso horário local
+    // Ex: new Date("2025-07-23") -> Quarta-feira, 23 de julho de 2025 00:00:00 GMT-0300 (Hora Padrão de Brasília)
+    const date = new Date(dateStr + 'T00:00:00'); // Adicionar T00:00:00 garante que seja o início do dia local
     return date.toLocaleDateString('pt-BR', {
       weekday: 'long',
       year: 'numeric',
@@ -69,7 +75,7 @@ export default function Dashboard() {
           <div>
             <h1 className="text-3xl font-bold">Sistema de Gestão de Frota</h1>
             <p className="text-blue-100 mt-1">
-              Controle e monitoramento de veículos UMB - {formatDate(selectedDate)}
+              Controle e monitoramento de veículos UMBS - {formatDate(selectedDate)}
             </p>
           </div>
           
