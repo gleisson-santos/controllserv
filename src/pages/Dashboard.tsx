@@ -85,7 +85,7 @@ export default function Dashboard() {
                 {getUserInitial()}
               </div>
               <div className="text-right">
-                <p className="font-medium">"Olá" {getUserDisplayName()}</p>
+                <p className="font-medium">Olá {getUserDisplayName()}</p>
                 <p className="text-sm text-blue-100">{user.email}</p>
               </div>
             </div>
