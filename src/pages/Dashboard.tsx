@@ -10,7 +10,10 @@ import Sidebar from '@/components/Sidebar';
 export default function Dashboard() {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {

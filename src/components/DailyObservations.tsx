@@ -62,8 +62,8 @@ export default function DailyObservations({ selectedDate }: DailyObservationsPro
       const { data, error } = await supabase
         .from('daily_observations')
         .select('*')
-        .order('date', { ascending: false })
-        .limit(10);
+        .eq('date', selectedDate)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
