@@ -36,6 +36,8 @@ export default function SituationChart({ selectedDate, refreshTrigger }: Situati
         .from('general_info')
         .select('*')
         .eq('date', selectedDate)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
