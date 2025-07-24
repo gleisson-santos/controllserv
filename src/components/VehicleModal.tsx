@@ -12,7 +12,7 @@ interface VehicleModalProps {
 
 export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }: VehicleModalProps) {
   const [name, setName] = useState('');
-  const [type, setType] = useState<'DESTACK' | 'EMBASA' | 'OUTROS'>('OUTROS');
+  const [type, setType] = useState<'DESTACK'|'A.CUNHA' | 'EMBASA' | 'OUTROS'>('OUTROS');
   const [status, setStatus] = useState<'Funcionando - Operando' | 'Funcionando - Parado' | 'Manutenção - Veiculo' | 'Manutenção - Equipamento' | 'Emprestado'>('Funcionando - Operando');
   const [observations, setObservations] = useState('');
   const [driver, setDriver] = useState('');
@@ -215,10 +215,11 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
             </label>
             <select
               value={type}
-              onChange={(e) => setType(e.target.value as 'DESTACK' | 'EMBASA' | 'OUTROS')}
+              onChange={(e) => setType(e.target.value as 'DESTACK'|'A.CUNHA'| 'EMBASA' | 'OUTROS')}
               className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
             >
               <option value="DESTACK">DESTACK</option>
+              <option value="A.CUNHA">A.CUNHA</option>
               <option value="EMBASA">EMBASA</option>
               <option value="OUTROS">OUTROS</option>
             </select>
