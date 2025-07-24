@@ -74,9 +74,9 @@ export default function Dashboard() {
       <header className="gradient-header text-white p-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold">Sistema de Gestão de Frota</h1>
+            <h1 className="text-3xl font-bold">Gestão de frota e demandas</h1>
             <p className="text-blue-100 mt-1">
-              Controle e monitoramento de veículos UMBS - {formatDate(selectedDate)}
+              Controle e monitoramento | Situação diária UM|| - {formatDate(selectedDate)}
             </p>
           </div>
           
