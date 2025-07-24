@@ -72,7 +72,7 @@ export default function Auth() {
       <div className="bg-white rounded-xl p-10 card-shadow w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-foreground mb-2">
-            Gestão interna
+            Gestão de equipamentos e serviços
           </h1>
           <p className="text-muted-foreground">
             {isLogin ? 'Entre em sua conta' : 'Crie sua conta'}
