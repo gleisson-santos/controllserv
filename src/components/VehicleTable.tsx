@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Vehicle, VehicleStatus } from './VehicleManagement';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 
 interface VehicleTableProps {
   vehicles: VehicleStatus[];
@@ -11,8 +12,54 @@ interface VehicleTableProps {
   onRefresh: () => void;
 }
 
-export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, onRefresh }: VehicleTableProps) {
+type SortColumn = 'name' | 'driver' | 'type' | 'status';
+type SortDirection = 'asc' | 'desc';
 
+export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, onRefresh }: VehicleTableProps) {
+  const [sortColumn, setSortColumn] = useState<SortColumn>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedVehicles = [...vehicles].sort((a, b) => {
+    let aValue: string, bValue: string;
+    
+    switch (sortColumn) {
+      case 'name':
+        aValue = a.vehicle?.name || '';
+        bValue = b.vehicle?.name || '';
+        break;
+      case 'driver':
+        aValue = a.driver || '';
+        bValue = b.driver || '';
+        break;
+      case 'type':
+        aValue = a.vehicle?.type || '';
+        bValue = b.vehicle?.type || '';
+        break;
+      case 'status':
+        aValue = a.status;
+        bValue = b.status;
+        break;
+      default:
+        return 0;
+    }
+    
+    const comparison = aValue.localeCompare(bValue);
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
+
+  const getSortIcon = (column: SortColumn) => {
+    if (sortColumn !== column) return null;
+    return sortDirection === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />;
+  };
 
   const deleteVehicle = async (vehicleId: string) => {
     if (!confirm('Tem certeza que deseja excluir este veículo?')) return;
@@ -71,16 +118,40 @@ export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, 
         <thead className="bg-muted/50 sticky top-0">
           <tr>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-28">
-              Placa
+              <button 
+                onClick={() => handleSort('name')}
+                className="flex items-center gap-1 hover:text-foreground transition-colors"
+              >
+                Placa
+                {getSortIcon('name')}
+              </button>
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">
-              Motorista
+              <button 
+                onClick={() => handleSort('driver')}
+                className="flex items-center gap-1 hover:text-foreground transition-colors"
+              >
+                Motorista
+                {getSortIcon('driver')}
+              </button>
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">
-              Tipo
+              <button 
+                onClick={() => handleSort('type')}
+                className="flex items-center gap-1 hover:text-foreground transition-colors"
+              >
+                Tipo
+                {getSortIcon('type')}
+              </button>
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-44">
-              Status
+              <button 
+                onClick={() => handleSort('status')}
+                className="flex items-center gap-1 hover:text-foreground transition-colors"
+              >
+                Status
+                {getSortIcon('status')}
+              </button>
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Observações
@@ -91,28 +162,28 @@ export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, 
           </tr>
         </thead>
         <tbody className="bg-card divide-y divide-border">
-          {vehicles.map((vehicleStatus) => (
+          {sortedVehicles.map((vehicleStatus) => (
             <tr key={vehicleStatus.vehicle_id} className="hover:bg-muted/25">
-              <td className="px-4 py-4 text-sm font-medium text-foreground">
+              <td className="px-4 py-2 text-sm font-medium text-foreground">
                 {vehicleStatus.vehicle?.name}
               </td>
-              <td className="px-4 py-4 text-sm text-muted-foreground">
+              <td className="px-4 py-2 text-sm text-muted-foreground">
                 {vehicleStatus.driver || '-'}
               </td>
-              <td className="px-4 py-4 text-sm text-muted-foreground">
+              <td className="px-4 py-2 text-sm text-muted-foreground">
                 {vehicleStatus.vehicle?.type}
               </td>
-              <td className="px-4 py-4">
+              <td className="px-4 py-2">
                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getStatusBadgeClass(vehicleStatus.status)}`}>
                   {vehicleStatus.status}
                 </span>
               </td>
-              <td className="px-4 py-4 max-w-xs">
+              <td className="px-4 py-2 max-w-xs">
                 <div className="text-sm text-muted-foreground truncate" title={vehicleStatus.observations || 'Sem observações'}>
                   {vehicleStatus.observations || 'Sem observações'}
                 </div>
               </td>
-              <td className="px-4 py-4 text-center">
+              <td className="px-4 py-2 text-center">
                 <div className="flex justify-center gap-2">
                   <button
                     onClick={() => vehicleStatus.vehicle && onEdit(vehicleStatus.vehicle)}
