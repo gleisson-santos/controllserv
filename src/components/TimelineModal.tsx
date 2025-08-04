@@ -15,6 +15,7 @@ interface TimelineData {
   vehicleId: string;
   vehicleName: string;
   vehicleType: string;
+  driverName: string;
   dailyStatus: { [key: string]: string };
 }
 
@@ -66,24 +67,40 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
 
       if (error) throw error;
 
-      // Get all unique vehicles
+      // Get all unique vehicles first from vehicles table
+      const { data: vehiclesData, error: vehiclesError } = await supabase
+        .from('vehicles')
+        .select('*');
+
+      if (vehiclesError) throw vehiclesError;
+
+      // Create timeline data for all vehicles
       const vehicleMap = new Map<string, TimelineData>();
       
+      vehiclesData?.forEach(vehicle => {
+        vehicleMap.set(vehicle.id, {
+          vehicleId: vehicle.id,
+          vehicleName: vehicle.name,
+          vehicleType: vehicle.type,
+          driverName: vehicle.driver || '',
+          dailyStatus: {}
+        });
+      });
+
+      
+      // Add status data to vehicles
       statusData?.forEach(status => {
         const vehicle = status.vehicles as any;
         if (!vehicle) return;
 
-        if (!vehicleMap.has(vehicle.id)) {
-          vehicleMap.set(vehicle.id, {
-            vehicleId: vehicle.id,
-            vehicleName: vehicle.name,
-            vehicleType: vehicle.type,
-            dailyStatus: {}
-          });
+        const vehicleData = vehicleMap.get(vehicle.id);
+        if (vehicleData) {
+          vehicleData.dailyStatus[status.date] = status.status;
+          // Update driver name from status if available
+          if (status.driver) {
+            vehicleData.driverName = status.driver;
+          }
         }
-
-        const vehicleData = vehicleMap.get(vehicle.id)!;
-        vehicleData.dailyStatus[status.date] = status.status;
       });
 
       setTimelineData(Array.from(vehicleMap.values()));
@@ -162,10 +179,13 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
               <table className="w-full text-xs">
                 <thead className="bg-muted/50 sticky top-0">
                   <tr>
-                    <th className="text-left p-2 border-r sticky left-0 bg-muted/50 z-10 min-w-[200px]">
+                    <th className="text-left p-2 border-r sticky left-0 bg-muted/50 z-10 min-w-[150px]">
                       Veículo
                     </th>
-                    <th className="text-left p-2 border-r sticky left-[200px] bg-muted/50 z-10 min-w-[80px]">
+                    <th className="text-left p-2 border-r sticky left-[150px] bg-muted/50 z-10 min-w-[120px]">
+                      Nome Motorista
+                    </th>
+                    <th className="text-left p-2 border-r sticky left-[270px] bg-muted/50 z-10 min-w-[80px]">
                       Tipo
                     </th>
                     {days.map(date => (
@@ -178,10 +198,13 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
                 <tbody>
                   {timelineData.map(vehicle => (
                     <tr key={vehicle.vehicleId} className="border-b hover:bg-muted/30">
-                      <td className="p-2 border-r font-medium sticky left-0 bg-background z-10 min-w-[200px]">
+                      <td className="p-2 border-r font-medium sticky left-0 bg-background z-10 min-w-[150px]">
                         {vehicle.vehicleName}
                       </td>
-                      <td className="p-2 border-r text-xs sticky left-[200px] bg-background z-10 min-w-[80px]">
+                      <td className="p-2 border-r text-xs sticky left-[150px] bg-background z-10 min-w-[120px]">
+                        {vehicle.driverName || '-'}
+                      </td>
+                      <td className="p-2 border-r text-xs sticky left-[270px] bg-background z-10 min-w-[80px]">
                         {vehicle.vehicleType}
                       </td>
                       {days.map(date => {
