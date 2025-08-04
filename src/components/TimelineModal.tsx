@@ -121,16 +121,12 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
     const month = parseInt(selectedMonth.split('-')[1]);
     const daysInMonth = new Date(year, month, 0).getDate();
     
-    console.log('Selected Month:', selectedMonth);
-    console.log('Year:', year, 'Month:', month, 'Days in month:', daysInMonth);
-    
     const dates = Array.from({ length: daysInMonth }, (_, i) => {
-      const day = i + 1; // Começa do dia 1
+      const day = i + 1; // Sempre começa do dia 1
       const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       return dateString;
     });
     
-    console.log('Generated dates:', dates.slice(0, 5)); // Log dos primeiros 5 dias
     return dates;
   };
 
@@ -187,18 +183,18 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
               <table className="w-full text-xs">
                 <thead className="bg-muted/50 sticky top-0">
                   <tr>
-                    <th className="text-left p-1 border-r sticky left-0 bg-muted/50 z-10 w-[120px]">
+                    <th className="text-left p-1 border-r sticky left-0 bg-muted/50 z-20 w-[120px]">
                       Veículo
                     </th>
-                    <th className="text-left p-1 border-r sticky left-[120px] bg-muted/50 z-10 w-[100px]">
+                    <th className="text-left p-1 border-r sticky left-[120px] bg-muted/50 z-20 w-[100px]">
                       Nome Motorista
                     </th>
-                    <th className="text-left p-1 border-r sticky left-[220px] bg-muted/50 z-10 w-[70px]">
+                    <th className="text-left p-1 border-r sticky left-[220px] bg-muted/50 z-20 w-[70px]">
                       Tipo
                     </th>
-                    {days.map(date => (
-                      <th key={date} className="text-center p-1 border-r w-[25px] text-xs">
-                        {new Date(date).getDate()}
+                    {days.map((date, index) => (
+                      <th key={`day-${index}`} className="text-center p-1 border-r w-[25px] text-xs bg-muted/50">
+                        {new Date(date + 'T00:00:00').getDate()}
                       </th>
                     ))}
                   </tr>
@@ -206,23 +202,23 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
                 <tbody>
                   {timelineData.map(vehicle => (
                     <tr key={vehicle.vehicleId} className="border-b hover:bg-muted/30">
-                      <td className="p-1 border-r font-medium sticky left-0 bg-background z-10 w-[120px] text-xs">
+                      <td className="p-1 border-r font-medium sticky left-0 bg-background z-20 w-[120px] text-xs">
                         {vehicle.vehicleName}
                       </td>
-                      <td className="p-1 border-r text-xs sticky left-[120px] bg-background z-10 w-[100px]">
+                      <td className="p-1 border-r text-xs sticky left-[120px] bg-background z-20 w-[100px]">
                         {vehicle.driverName || '-'}
                       </td>
-                      <td className="p-1 border-r text-xs sticky left-[220px] bg-background z-10 w-[70px]">
+                      <td className="p-1 border-r text-xs sticky left-[220px] bg-background z-20 w-[70px]">
                         {vehicle.vehicleType}
                       </td>
-                      {days.map(date => {
+                      {days.map((date, index) => {
                         const status = vehicle.dailyStatus[date] || '';
                         const colorClass = statusColors[status as keyof typeof statusColors] || 'bg-gray-200';
                         return (
-                          <td key={`${vehicle.vehicleId}-${date}`} className="p-0.5 border-r w-[25px]">
+                          <td key={`${vehicle.vehicleId}-day-${index}`} className="p-0.5 border-r w-[25px]">
                             <div 
                               className={`w-full h-5 rounded ${colorClass}`}
-                              title={status || 'Sem dados'}
+                              title={`Dia ${new Date(date + 'T00:00:00').getDate()}: ${status || 'Sem dados'}`}
                             ></div>
                           </td>
                         );
