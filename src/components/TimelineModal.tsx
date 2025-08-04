@@ -120,10 +120,18 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
     const year = parseInt(selectedMonth.split('-')[0]);
     const month = parseInt(selectedMonth.split('-')[1]);
     const daysInMonth = new Date(year, month, 0).getDate();
-    return Array.from({ length: daysInMonth }, (_, i) => {
-      const day = i + 1;
-      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    
+    console.log('Selected Month:', selectedMonth);
+    console.log('Year:', year, 'Month:', month, 'Days in month:', daysInMonth);
+    
+    const dates = Array.from({ length: daysInMonth }, (_, i) => {
+      const day = i + 1; // Começa do dia 1
+      const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      return dateString;
     });
+    
+    console.log('Generated dates:', dates.slice(0, 5)); // Log dos primeiros 5 dias
+    return dates;
   };
 
   const days = getDaysInMonth();
