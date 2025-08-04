@@ -179,17 +179,17 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
               <table className="w-full text-xs">
                 <thead className="bg-muted/50 sticky top-0">
                   <tr>
-                    <th className="text-left p-2 border-r sticky left-0 bg-muted/50 z-10 min-w-[150px]">
+                    <th className="text-left p-1 border-r sticky left-0 bg-muted/50 z-10 w-[120px]">
                       Veículo
                     </th>
-                    <th className="text-left p-2 border-r sticky left-[150px] bg-muted/50 z-10 min-w-[120px]">
+                    <th className="text-left p-1 border-r sticky left-[120px] bg-muted/50 z-10 w-[100px]">
                       Nome Motorista
                     </th>
-                    <th className="text-left p-2 border-r sticky left-[270px] bg-muted/50 z-10 min-w-[80px]">
+                    <th className="text-left p-1 border-r sticky left-[220px] bg-muted/50 z-10 w-[70px]">
                       Tipo
                     </th>
                     {days.map(date => (
-                      <th key={date} className="text-center p-1 border-r min-w-[30px]">
+                      <th key={date} className="text-center p-1 border-r w-[25px] text-xs">
                         {new Date(date).getDate()}
                       </th>
                     ))}
@@ -198,22 +198,22 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
                 <tbody>
                   {timelineData.map(vehicle => (
                     <tr key={vehicle.vehicleId} className="border-b hover:bg-muted/30">
-                      <td className="p-2 border-r font-medium sticky left-0 bg-background z-10 min-w-[150px]">
+                      <td className="p-1 border-r font-medium sticky left-0 bg-background z-10 w-[120px] text-xs">
                         {vehicle.vehicleName}
                       </td>
-                      <td className="p-2 border-r text-xs sticky left-[150px] bg-background z-10 min-w-[120px]">
+                      <td className="p-1 border-r text-xs sticky left-[120px] bg-background z-10 w-[100px]">
                         {vehicle.driverName || '-'}
                       </td>
-                      <td className="p-2 border-r text-xs sticky left-[270px] bg-background z-10 min-w-[80px]">
+                      <td className="p-1 border-r text-xs sticky left-[220px] bg-background z-10 w-[70px]">
                         {vehicle.vehicleType}
                       </td>
                       {days.map(date => {
                         const status = vehicle.dailyStatus[date] || '';
                         const colorClass = statusColors[status as keyof typeof statusColors] || 'bg-gray-200';
                         return (
-                          <td key={`${vehicle.vehicleId}-${date}`} className="p-1 border-r">
+                          <td key={`${vehicle.vehicleId}-${date}`} className="p-0.5 border-r w-[25px]">
                             <div 
-                              className={`w-full h-6 rounded ${colorClass}`}
+                              className={`w-full h-5 rounded ${colorClass}`}
                               title={status || 'Sem dados'}
                             ></div>
                           </td>
