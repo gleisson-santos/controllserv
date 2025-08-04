@@ -4,6 +4,7 @@ import { toast } from '@/hooks/use-toast';
 import VehicleModal from './VehicleModal';
 import VehicleTable from './VehicleTable';
 import SituationChart from './SituationChart';
+import TimelineModal from './TimelineModal';
 
 interface VehicleManagementProps {
   selectedDate: string;
@@ -36,6 +37,7 @@ export default function VehicleManagement({ selectedDate, onDateChange, refreshT
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [showTimelineModal, setShowTimelineModal] = useState(false);
 
   useEffect(() => {
     loadVehicles();
@@ -194,6 +196,13 @@ export default function VehicleManagement({ selectedDate, onDateChange, refreshT
               <i className="fas fa-copy"></i>
               Copiar Dia Anterior
             </button>
+            <button
+              onClick={() => setShowTimelineModal(true)}
+              className="btn-secondary"
+            >
+              <i className="fas fa-chart-line"></i>
+              Analisa Timeline
+            </button>
           </div>
         </div>
       </div>
@@ -256,6 +265,13 @@ export default function VehicleManagement({ selectedDate, onDateChange, refreshT
           selectedDate={selectedDate}
         />
       )}
+
+      {/* Timeline Modal */}
+      <TimelineModal
+        isOpen={showTimelineModal}
+        onClose={() => setShowTimelineModal(false)}
+        selectedDate={selectedDate}
+      />
     </div>
   );
 }
