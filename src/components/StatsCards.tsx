@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface StatsCardsProps {
   selectedDate: string;
+  onStatsChange?: (stats: Stats) => void;
 }
 
 interface Stats {
@@ -12,7 +13,7 @@ interface Stats {
   emprestado: number;
 }
 
-export default function StatsCards({ selectedDate }: StatsCardsProps) {
+export default function StatsCards({ selectedDate, onStatsChange }: StatsCardsProps) {
   const [stats, setStats] = useState<Stats>({
     total: 0,
     funcionando: 0,
@@ -52,10 +53,13 @@ export default function StatsCards({ selectedDate }: StatsCardsProps) {
 
       console.log('Stats data loaded:', { statusData, statusCounts, total });
 
-      setStats({
+      const newStats = {
         total,
         ...statusCounts
-      });
+      };
+      
+      setStats(newStats);
+      onStatsChange?.(newStats);
     } catch (error) {
       console.error('Error loading stats:', error);
     }

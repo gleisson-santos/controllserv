@@ -145,6 +145,19 @@ export default function Dashboard() {
               </div>
             </div>
             <button
+              onClick={handleWebhook}
+              disabled={isHookLoading}
+              className="btn-secondary !bg-white/10 !text-white border-white/20 hover:!bg-white/20 text-sm px-3 py-2"
+              title="Enviar dados para webhook"
+            >
+              {isHookLoading ? (
+                <i className="fas fa-spinner fa-spin"></i>
+              ) : (
+                <i className="fas fa-paper-plane"></i>
+              )}
+              Hook
+            </button>
+            <button
               onClick={handleSignOut}
               className="btn-secondary !bg-white/10 !text-white border-white/20 hover:!bg-white/20"
             >
@@ -158,7 +171,10 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto p-6">
         {/* Stats Cards */}
-        <StatsCards selectedDate={selectedDate} />
+        <StatsCards 
+          selectedDate={selectedDate} 
+          onStatsChange={setStats}
+        />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
@@ -176,6 +192,7 @@ export default function Dashboard() {
             <Sidebar 
               selectedDate={selectedDate} 
               onDataSaved={() => setRefreshTrigger(prev => prev + 1)}
+              onGeneralInfoChange={setGeneralInfo}
             />
           </div>
         </div>

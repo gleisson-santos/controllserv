@@ -10,6 +10,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 interface SidebarProps {
   selectedDate: string;
   onDataSaved?: () => void;
+  onGeneralInfoChange?: (info: DailyInfo) => void;
 }
 
 interface FleetStats {
@@ -25,7 +26,7 @@ interface DailyInfo {
   oge: number;
 }
 
-export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
+export default function Sidebar({ selectedDate, onDataSaved, onGeneralInfoChange }: SidebarProps) {
   const [fleetStats, setFleetStats] = useState<FleetStats>({
     funcionando: 0,
     quebrado: 0,
@@ -90,21 +91,25 @@ export default function Sidebar({ selectedDate, onDataSaved }: SidebarProps) {
       
       if (data) {
         setHasExistingData(true);
-        setDailyInfo({
+        const newInfo = {
           extravasamento: data.extravasamento || 0,
           servico_turma_02: data.servico_turma_02 || 0,
           servico_turma_05: data.servico_turma_05 || 0,
           oge: data.oge || 0
-        });
+        };
+        setDailyInfo(newInfo);
+        onGeneralInfoChange?.(newInfo);
       } else {
         setHasExistingData(false);
         // Reset to default values if no data found
-        setDailyInfo({
+        const defaultInfo = {
           extravasamento: 0,
           servico_turma_02: 0,
           servico_turma_05: 0,
           oge: 0
-        });
+        };
+        setDailyInfo(defaultInfo);
+        onGeneralInfoChange?.(defaultInfo);
       }
     } catch (error) {
       console.error('Error loading daily info:', error);
