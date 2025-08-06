@@ -62,9 +62,38 @@ export default function Dashboard() {
   const handleWebhook = async () => {
     setIsHookLoading(true);
     try {
+      // Buscar dados detalhados por tipo de veículo
+      const { data: vehicleStatusData, error: statusError } = await supabase
+        .from('vehicle_status')
+        .select(`
+          status,
+          vehicles!inner(type)
+        `)
+        .eq('date', selectedDate);
+
+      if (statusError) throw statusError;
+
+      // Agrupar por tipo de veículo
+      const vehiclesByType: Record<string, { funcionando: number; quebrado: number }> = {};
+
+      vehicleStatusData?.forEach(item => {
+        const vehicleType = item.vehicles.type;
+        
+        if (!vehiclesByType[vehicleType]) {
+          vehiclesByType[vehicleType] = { funcionando: 0, quebrado: 0 };
+        }
+
+        if (item.status === 'Funcionando - Operando' || item.status === 'Funcionando - Parado') {
+          vehiclesByType[vehicleType].funcionando++;
+        } else if (item.status === 'Manutenção - Veiculo' || item.status === 'Manutenção - Equipamento') {
+          vehiclesByType[vehicleType].quebrado++;
+        }
+      });
+
       const payload = {
         data: formatDate(selectedDate),
-        frota: {
+        frota_por_tipo: vehiclesByType,
+        resumo_frota: {
           total: stats.total,
           funcionando: {
             quantidade: stats.funcionando,
