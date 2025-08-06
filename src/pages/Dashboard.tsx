@@ -20,6 +20,9 @@ export default function Dashboard() {
     return `${year}-${month}-${day}`; // Formato "YYYY-MM-DD"
   });
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [stats, setStats] = useState({ total: 0, funcionando: 0, quebrado: 0, emprestado: 0 });
+  const [generalInfo, setGeneralInfo] = useState({ extravasamento: 0, servico_turma_02: 0, servico_turma_05: 0, oge: 0 });
+  const [isHookLoading, setIsHookLoading] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -56,10 +59,61 @@ export default function Dashboard() {
     return user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário';
   };
 
+  const handleWebhook = async () => {
+    setIsHookLoading(true);
+    try {
+      const payload = {
+        data: formatDate(selectedDate),
+        frota: {
+          total: stats.total,
+          funcionando: {
+            quantidade: stats.funcionando,
+            percentual: stats.total > 0 ? Math.round((stats.funcionando / stats.total) * 100) : 0
+          },
+          quebrados: {
+            quantidade: stats.quebrado,
+            percentual: stats.total > 0 ? Math.round((stats.quebrado / stats.total) * 100) : 0
+          },
+          emprestados: {
+            quantidade: stats.emprestado,
+            percentual: stats.total > 0 ? Math.round((stats.emprestado / stats.total) * 100) : 0
+          }
+        },
+        informativo_geral: {
+          extravasamento: generalInfo.extravasamento,
+          servico_turma_02: generalInfo.servico_turma_02,
+          servico_turma_05: generalInfo.servico_turma_05,
+          oge: generalInfo.oge
+        },
+        usuario: {
+          nome: getUserDisplayName(),
+          email: user.email
+        }
+      };
+
+      await fetch("https://hook.us2.make.com/ix6iuojnngj4y47966tl74rvba9hoj4y", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        mode: "no-cors",
+        body: JSON.stringify(payload),
+      });
+
+      toast({
+        title: "Dados enviados",
+        description: "Informações enviadas para o webhook com sucesso!",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Falha ao enviar dados para o webhook",
+        variant: "destructive",
+      });
+    }
+    setIsHookLoading(false);
+  };
+
   const formatDate = (dateStr: string) => {
-    // Ao criar a data a partir de "YYYY-MM-DD", ela será interpretada como fuso horário local
-    // Ex: new Date("2025-07-23") -> Quarta-feira, 23 de julho de 2025 00:00:00 GMT-0300 (Hora Padrão de Brasília)
-    const date = new Date(dateStr + 'T00:00:00'); // Adicionar T00:00:00 garante que seja o início do dia local
+    const date = new Date(dateStr + 'T00:00:00');
     return date.toLocaleDateString('pt-BR', {
       weekday: 'long',
       year: 'numeric',
