@@ -50,7 +50,7 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
       const startDate = `${year}-${month}-01`;
       const endDate = new Date(parseInt(year), parseInt(month), 0).toISOString().split('T')[0];
 
-      // Get all vehicle status data for the month
+      // Get all vehicle status data for the month with vehicle info
       const { data: statusData, error } = await supabase
         .from('vehicle_status')
         .select(`
@@ -67,43 +67,45 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
 
       if (error) throw error;
 
-      // Get all unique vehicles first from vehicles table
-      const { data: vehiclesData, error: vehiclesError } = await supabase
-        .from('vehicles')
-        .select('*');
-
-      if (vehiclesError) throw vehiclesError;
-
-      // Create timeline data for all vehicles
+      // Create a map to group vehicles and avoid duplicates
       const vehicleMap = new Map<string, TimelineData>();
       
-      vehiclesData?.forEach(vehicle => {
-        vehicleMap.set(vehicle.id, {
-          vehicleId: vehicle.id,
-          vehicleName: vehicle.name,
-          vehicleType: vehicle.type,
-          driverName: vehicle.driver || '',
-          dailyStatus: {}
-        });
-      });
-
-      
-      // Add status data to vehicles
+      // Process status data and group by vehicle
       statusData?.forEach(status => {
         const vehicle = status.vehicles as any;
         if (!vehicle) return;
 
-        const vehicleData = vehicleMap.get(vehicle.id);
+        const vehicleId = vehicle.id;
+        
+        // If vehicle doesn't exist in map, create it
+        if (!vehicleMap.has(vehicleId)) {
+          vehicleMap.set(vehicleId, {
+            vehicleId: vehicleId,
+            vehicleName: vehicle.name,
+            vehicleType: vehicle.type,
+            driverName: status.driver || '',
+            dailyStatus: {}
+          });
+        }
+
+        // Get the vehicle data from map
+        const vehicleData = vehicleMap.get(vehicleId);
         if (vehicleData) {
+          // Add the status for this date
           vehicleData.dailyStatus[status.date] = status.status;
-          // Update driver name from status if available
-          if (status.driver) {
+          
+          // Update driver name if provided (keep the most recent one)
+          if (status.driver && status.driver.trim() !== '') {
             vehicleData.driverName = status.driver;
           }
         }
       });
 
-      setTimelineData(Array.from(vehicleMap.values()));
+      // Convert map to array and sort by vehicle name
+      const timelineArray = Array.from(vehicleMap.values())
+        .sort((a, b) => a.vehicleName.localeCompare(b.vehicleName));
+
+      setTimelineData(timelineArray);
     } catch (error: any) {
       console.error('Error loading timeline data:', error);
       toast({
