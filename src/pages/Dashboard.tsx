@@ -159,7 +159,7 @@ export default function Dashboard() {
           <div>
             <h1 className="text-3xl font-bold">Gestão de frota e demandas</h1>
             <p className="text-blue-100 mt-1">
-              Controle e monitoramento | Situação diária UMBS - {formatDate(selectedDate)}
+              Situação diária UMBS - {formatDate(selectedDate)}
             </p>
           </div>
           
