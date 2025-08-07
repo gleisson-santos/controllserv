@@ -17,8 +17,15 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
   const [observations, setObservations] = useState('');
   const [driver, setDriver] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // Estados para os dados já cadastrados
+  const [existingPlates, setExistingPlates] = useState<string[]>([]);
+  const [existingDrivers, setExistingDrivers] = useState<string[]>([]);
+  const [showPlateDropdown, setShowPlateDropdown] = useState(false);
+  const [showDriverDropdown, setShowDriverDropdown] = useState(false);
 
   useEffect(() => {
+    loadExistingData();
     if (vehicle) {
       setName(vehicle.name);
       setType(vehicle.type);
@@ -32,6 +39,45 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
       setDriver('');
     }
   }, [vehicle, selectedDate]);
+
+  const loadExistingData = async () => {
+    try {
+      // Buscar placas existentes
+      const { data: plateData, error: plateError } = await supabase
+        .from('vehicles')
+        .select('name')
+        .order('name');
+
+      if (plateError) throw plateError;
+
+      const plates = [...new Set(plateData?.map(v => v.name) || [])];
+      setExistingPlates(plates);
+
+      // Buscar motoristas existentes (tanto da tabela vehicles quanto vehicle_status)
+      const { data: vehicleDrivers, error: vehicleError } = await supabase
+        .from('vehicles')
+        .select('driver')
+        .not('driver', 'is', null);
+
+      const { data: statusDrivers, error: statusError } = await supabase
+        .from('vehicle_status')
+        .select('driver')
+        .not('driver', 'is', null);
+
+      if (vehicleError) throw vehicleError;
+      if (statusError) throw statusError;
+
+      const allDrivers = [
+        ...(vehicleDrivers?.map(v => v.driver) || []),
+        ...(statusDrivers?.map(v => v.driver) || [])
+      ];
+      
+      const uniqueDrivers = [...new Set(allDrivers.filter(d => d && d.trim() !== ''))];
+      setExistingDrivers(uniqueDrivers);
+    } catch (error) {
+      console.error('Error loading existing data:', error);
+    }
+  };
 
   const loadVehicleStatus = async () => {
     if (!vehicle) return;
@@ -167,7 +213,15 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          setShowPlateDropdown(false);
+          setShowDriverDropdown(false);
+        }
+      }}
+    >
       <div className="bg-card rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold text-foreground">
@@ -182,31 +236,75 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium text-foreground mb-2">
               Placa
             </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
-              placeholder="Ex: ABC-1234"
-              required
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onFocus={() => setShowPlateDropdown(true)}
+                className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
+                placeholder="Ex: ABC-1234"
+                required
+              />
+              {showPlateDropdown && existingPlates.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-background border border-input rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                  {existingPlates
+                    .filter(plate => plate.toLowerCase().includes(name.toLowerCase()))
+                    .map((plate, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        className="w-full px-3 py-2 text-left hover:bg-accent hover:text-accent-foreground"
+                        onClick={() => {
+                          setName(plate);
+                          setShowPlateDropdown(false);
+                        }}
+                      >
+                        {plate}
+                      </button>
+                    ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div>
+          <div className="relative">
             <label className="block text-sm font-medium text-foreground mb-2">
               Motorista
             </label>
-            <input
-              type="text"
-              value={driver}
-              onChange={(e) => setDriver(e.target.value)}
-              className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
-              placeholder="Nome do motorista"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={driver}
+                onChange={(e) => setDriver(e.target.value)}
+                onFocus={() => setShowDriverDropdown(true)}
+                className="w-full px-3 py-2 border border-input rounded-lg focus:ring-2 focus:ring-ring"
+                placeholder="Nome do motorista"
+              />
+              {showDriverDropdown && existingDrivers.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-background border border-input rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                  {existingDrivers
+                    .filter(driverName => driverName.toLowerCase().includes(driver.toLowerCase()))
+                    .map((driverName, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        className="w-full px-3 py-2 text-left hover:bg-accent hover:text-accent-foreground"
+                        onClick={() => {
+                          setDriver(driverName);
+                          setShowDriverDropdown(false);
+                        }}
+                      >
+                        {driverName}
+                      </button>
+                    ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
