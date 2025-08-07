@@ -131,7 +131,8 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
           vehicle_id: vehicle.id,
           date: selectedDate,
           status,
-          observations,
+          observations: observations,
+          observationsLength: observations.length,
           created_by: user.id
         });
 
@@ -180,13 +181,18 @@ export default function VehicleModal({ vehicle, onClose, onSave, selectedDate }:
         if (error) throw error;
 
         // Create initial vehicle status
+        console.log('Creating vehicle status with observations:', {
+          observations: observations,
+          observationsLength: observations.length
+        });
+        
         const { error: statusError } = await supabase
           .from('vehicle_status')
           .insert({
             vehicle_id: newVehicle.id,
             date: selectedDate,
             status,
-            observations,
+            observations: observations,
             driver,
             created_by: user.id
           });
