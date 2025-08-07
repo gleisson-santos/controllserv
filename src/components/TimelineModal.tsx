@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
-import { X } from 'lucide-react';
+import { X, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface TimelineModalProps {
   isOpen: boolean;
@@ -18,6 +18,9 @@ interface TimelineData {
   driverName: string;
   dailyStatus: { [key: string]: string };
 }
+
+type SortColumn = 'vehicleName' | 'driverName' | 'vehicleType';
+type SortDirection = 'asc' | 'desc';
 
 const statusColors = {
   'Funcionando - Operando': 'bg-green-500',
@@ -35,6 +38,8 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
     const date = new Date(selectedDate);
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
   });
+  const [sortColumn, setSortColumn] = useState<SortColumn>('vehicleName');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   useEffect(() => {
     if (isOpen) {
@@ -101,9 +106,8 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
         }
       });
 
-      // Convert map to array and sort by vehicle name
-      const timelineArray = Array.from(vehicleMap.values())
-        .sort((a, b) => a.vehicleName.localeCompare(b.vehicleName));
+      // Convert map to array
+      const timelineArray = Array.from(vehicleMap.values());
 
       setTimelineData(timelineArray);
     } catch (error: any) {
@@ -131,6 +135,46 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
     
     return dates;
   };
+
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (column: SortColumn) => {
+    if (sortColumn !== column) return null;
+    return sortDirection === 'asc' ? 
+      <ChevronUp className="w-3 h-3 inline ml-1" /> : 
+      <ChevronDown className="w-3 h-3 inline ml-1" />;
+  };
+
+  const sortedTimelineData = [...timelineData].sort((a, b) => {
+    let aValue: string, bValue: string;
+    
+    switch (sortColumn) {
+      case 'vehicleName':
+        aValue = a.vehicleName;
+        bValue = b.vehicleName;
+        break;
+      case 'driverName':
+        aValue = a.driverName || '';
+        bValue = b.driverName || '';
+        break;
+      case 'vehicleType':
+        aValue = a.vehicleType;
+        bValue = b.vehicleType;
+        break;
+      default:
+        return 0;
+    }
+
+    const comparison = aValue.localeCompare(bValue);
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
 
   const days = getDaysInMonth();
 
@@ -185,14 +229,23 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
               <table className="w-full text-xs">
                 <thead className="bg-muted/50 sticky top-0">
                   <tr>
-                    <th className="text-left p-1 border-r sticky left-0 bg-muted/50 z-20 w-[120px]">
-                      Veículo
+                    <th 
+                      className="text-left p-1 border-r sticky left-0 bg-muted/50 z-20 w-[120px] cursor-pointer hover:bg-muted/70"
+                      onClick={() => handleSort('vehicleName')}
+                    >
+                      Veículo {getSortIcon('vehicleName')}
                     </th>
-                    <th className="text-left p-1 border-r sticky left-[120px] bg-muted/50 z-20 w-[100px]">
-                      Nome Motorista
+                    <th 
+                      className="text-left p-1 border-r sticky left-[120px] bg-muted/50 z-20 w-[100px] cursor-pointer hover:bg-muted/70"
+                      onClick={() => handleSort('driverName')}
+                    >
+                      Nome Motorista {getSortIcon('driverName')}
                     </th>
-                    <th className="text-left p-1 border-r sticky left-[220px] bg-muted/50 z-20 w-[70px]">
-                      Tipo
+                    <th 
+                      className="text-left p-1 border-r sticky left-[220px] bg-muted/50 z-20 w-[70px] cursor-pointer hover:bg-muted/70"
+                      onClick={() => handleSort('vehicleType')}
+                    >
+                      Tipo {getSortIcon('vehicleType')}
                     </th>
                     {days.map((date, index) => (
                       <th key={`day-${index}`} className="text-center p-1 border-r w-[25px] text-xs bg-muted/50">
@@ -202,7 +255,7 @@ export default function TimelineModal({ isOpen, onClose, selectedDate }: Timelin
                   </tr>
                 </thead>
                 <tbody>
-                  {timelineData.map(vehicle => (
+                  {sortedTimelineData.map(vehicle => (
                     <tr key={vehicle.vehicleId} className="border-b hover:bg-muted/30">
                       <td className="p-1 border-r font-medium sticky left-0 bg-background z-20 w-[120px] text-xs">
                         {vehicle.vehicleName}
