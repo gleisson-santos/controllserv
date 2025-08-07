@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Vehicle, VehicleStatus } from './VehicleManagement';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+import ObservationCell from './ObservationCell';
 
 interface VehicleTableProps {
   vehicles: VehicleStatus[];
@@ -178,11 +179,9 @@ export default function VehicleTable({ vehicles, loading, selectedDate, onEdit, 
                   {vehicleStatus.status}
                 </span>
               </td>
-              <td className="px-4 py-2 max-w-xs">
-                <div className="text-sm text-muted-foreground truncate" title={vehicleStatus.observations || 'Sem observações'}>
-                  {vehicleStatus.observations || 'Sem observações'}
-                </div>
-              </td>
+               <td className="px-4 py-2 max-w-xs">
+                 <ObservationCell observations={vehicleStatus.observations} />
+               </td>
               <td className="px-4 py-2 text-center">
                 <div className="flex justify-center gap-2">
                   <button
