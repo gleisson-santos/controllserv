@@ -155,7 +155,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="gradient-header text-white p-6">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className="w-full px-4 lg:px-6 xl:px-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold">Gestão de frota e demandas</h1>
             <p className="text-blue-100 mt-1">
@@ -198,7 +198,7 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="w-full px-4 lg:px-6 xl:px-8 py-6">
         {/* Stats Cards */}
         <StatsCards 
           selectedDate={selectedDate} 
