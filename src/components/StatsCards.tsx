@@ -70,7 +70,7 @@ export default function StatsCards({ selectedDate, onStatsChange }: StatsCardsPr
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Total Veículos */}
       <div className="bg-card rounded-lg p-6 border border-border">
         <div className="flex items-center justify-between">
