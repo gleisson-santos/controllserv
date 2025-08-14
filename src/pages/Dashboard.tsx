@@ -121,7 +121,7 @@ export default function Dashboard() {
         }
       };
 
-      await fetch("https://hook.us2.make.com/ix6iuojnngj4y47966tl74rvba9hoj4y", {
+      await fetch("https://hook.us2.make.com/geyqny8cuxoa1976d6z57j3tmcbbir99", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         mode: "no-cors",
