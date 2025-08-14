@@ -200,18 +200,12 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="w-full px-4 lg:px-6 xl:px-8 py-6">
-        {/* Stats Cards with Weather */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* Weather Card */}
-          <WeatherCard />
-          
-          {/* Stats Cards */}
-          <div className="md:col-span-1 lg:col-span-4">
-            <StatsCards 
-              selectedDate={selectedDate} 
-              onStatsChange={setStats}
-            />
-          </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatsCards 
+            selectedDate={selectedDate} 
+            onStatsChange={setStats}
+          />
         </div>
 
         {/* Main Content Grid */}
@@ -225,8 +219,12 @@ export default function Dashboard() {
             />
           </div>
 
-          {/* Sidebar - 1/3 width */}
-          <div>
+          {/* Right Column - Weather + Sidebar */}
+          <div className="space-y-6">
+            {/* Weather Card */}
+            <WeatherCard />
+            
+            {/* Sidebar */}
             <Sidebar 
               selectedDate={selectedDate} 
               onDataSaved={() => setRefreshTrigger(prev => prev + 1)}
