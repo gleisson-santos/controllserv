@@ -6,6 +6,7 @@ import { toast } from '@/hooks/use-toast';
 import StatsCards from '@/components/StatsCards';
 import VehicleManagement from '@/components/VehicleManagement';
 import Sidebar from '@/components/Sidebar';
+import WeatherCard from '@/components/WeatherCard';
 
 export default function Dashboard() {
   const { user, signOut, loading } = useAuth();
@@ -199,11 +200,16 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="w-full px-4 lg:px-6 xl:px-8 py-6">
+        {/* Weather Card */}
+        <WeatherCard />
+        
         {/* Stats Cards */}
-        <StatsCards 
-          selectedDate={selectedDate} 
-          onStatsChange={setStats}
-        />
+        <div className="mt-6">
+          <StatsCards 
+            selectedDate={selectedDate} 
+            onStatsChange={setStats}
+          />
+        </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
