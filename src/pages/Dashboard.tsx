@@ -200,15 +200,18 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="w-full px-4 lg:px-6 xl:px-8 py-6">
-        {/* Weather Card */}
-        <WeatherCard />
-        
-        {/* Stats Cards */}
-        <div className="mt-6">
-          <StatsCards 
-            selectedDate={selectedDate} 
-            onStatsChange={setStats}
-          />
+        {/* Stats Cards with Weather */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* Weather Card */}
+          <WeatherCard />
+          
+          {/* Stats Cards */}
+          <div className="md:col-span-1 lg:col-span-4">
+            <StatsCards 
+              selectedDate={selectedDate} 
+              onStatsChange={setStats}
+            />
+          </div>
         </div>
 
         {/* Main Content Grid */}

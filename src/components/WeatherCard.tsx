@@ -76,30 +76,21 @@ export default function WeatherCard() {
   if (loading) {
     return (
       <div className="bg-card rounded-lg p-6 border border-border">
-        <div className="flex items-center gap-3 mb-4">
-          <i className="fas fa-cloud-sun text-primary text-xl"></i>
-          <h2 className="text-lg font-semibold text-foreground">Clima - Salvador</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Clima - Salvador</p>
+            <Skeleton className="h-6 w-24 mt-1" />
+          </div>
+          <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+            <i className="fas fa-cloud-sun text-primary text-xl"></i>
+          </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          {/* Clima atual */}
-          <div className="md:col-span-1 bg-muted/50 rounded-lg p-4">
-            <Skeleton className="h-4 w-16 mb-2" />
-            <div className="flex items-center gap-3 mb-2">
-              <Skeleton className="h-12 w-12 rounded" />
-              <Skeleton className="h-8 w-12" />
-            </div>
-            <Skeleton className="h-3 w-full" />
-          </div>
-          
-          {/* Previsão */}
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-muted/50 rounded-lg p-4 text-center">
-              <Skeleton className="h-4 w-8 mb-2 mx-auto" />
-              <Skeleton className="h-10 w-10 rounded mx-auto mb-2" />
-              <Skeleton className="h-4 w-8 mx-auto" />
-            </div>
-          ))}
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-4 w-16" />
         </div>
       </div>
     );
@@ -108,62 +99,62 @@ export default function WeatherCard() {
   if (error || !weather) {
     return (
       <div className="bg-card rounded-lg p-6 border border-border">
-        <div className="flex items-center gap-3 mb-4">
-          <i className="fas fa-cloud-exclamation text-muted-foreground text-xl"></i>
-          <h2 className="text-lg font-semibold text-foreground">Clima - Salvador</h2>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-muted-foreground">Clima - Salvador</p>
+            <p className="text-2xl font-bold text-foreground">--°C</p>
+          </div>
+          <div className="w-12 h-12 bg-muted/20 rounded-lg flex items-center justify-center">
+            <i className="fas fa-cloud-exclamation text-muted-foreground text-xl"></i>
+          </div>
         </div>
-        
-        <div className="text-center py-6">
-          <i className="fas fa-exclamation-triangle text-warning text-2xl mb-2"></i>
-          <p className="text-muted-foreground">Clima indisponível no momento</p>
-        </div>
+        <p className="text-xs text-muted-foreground mt-2">Clima indisponível no momento</p>
       </div>
     );
   }
 
   return (
     <div className="bg-card rounded-lg p-6 border border-border">
-      <div className="flex items-center gap-3 mb-4">
-        <i className="fas fa-cloud-sun text-primary text-xl"></i>
-        <h2 className="text-lg font-semibold text-foreground">Clima - Salvador</h2>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        {/* Clima atual */}
-        <div className="md:col-span-1 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-4">
-          <p className="text-sm font-medium text-muted-foreground mb-2">Agora</p>
-          <div className="flex items-center gap-3 mb-2">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">Clima - Salvador</p>
+          <div className="flex items-center gap-2 mt-1">
             <img 
               src={`https:${weather.current.condition.icon}`}
               alt={weather.current.condition.text}
-              className="w-12 h-12"
+              className="w-8 h-8"
             />
-            <span className="text-2xl font-bold text-foreground">
+            <p className="text-2xl font-bold text-foreground">
               {Math.round(weather.current.temp_c)}°C
-            </span>
+            </p>
           </div>
-          <p className="text-xs text-muted-foreground leading-tight">
-            {weather.current.condition.text}
-          </p>
         </div>
-        
-        {/* Previsão para os próximos 4 dias */}
+        <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+          <i className="fas fa-cloud-sun text-primary text-xl"></i>
+        </div>
+      </div>
+      
+      <div className="flex justify-between items-center mt-3 pt-3 border-t border-border">
         {weather.forecast.forecastday.slice(1, 5).map((day) => (
-          <div key={day.date} className="bg-muted/50 rounded-lg p-4 text-center">
-            <p className="text-sm font-medium text-muted-foreground mb-2">
+          <div key={day.date} className="text-center">
+            <p className="text-xs text-muted-foreground mb-1">
               {getDayName(day.date)}
             </p>
             <img 
               src={`https:${day.day.condition.icon}`}
               alt={day.day.condition.text}
-              className="w-10 h-10 mx-auto mb-2"
+              className="w-6 h-6 mx-auto mb-1"
             />
-            <p className="text-lg font-semibold text-foreground">
+            <p className="text-xs font-medium text-foreground">
               {Math.round(day.day.maxtemp_c)}°
             </p>
           </div>
         ))}
       </div>
+      
+      <p className="text-xs text-muted-foreground mt-2">
+        {weather.current.condition.text}
+      </p>
     </div>
   );
 }
