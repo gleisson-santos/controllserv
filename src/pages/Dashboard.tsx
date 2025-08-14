@@ -201,12 +201,10 @@ export default function Dashboard() {
       {/* Main Content */}
       <div className="w-full px-4 lg:px-6 xl:px-8 py-6">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCards 
-            selectedDate={selectedDate} 
-            onStatsChange={setStats}
-          />
-        </div>
+        <StatsCards 
+          selectedDate={selectedDate} 
+          onStatsChange={setStats}
+        />
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
